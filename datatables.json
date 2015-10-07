@@ -1,0 +1,18 @@
+{
+    "css": [],
+    "js": [
+        "js/dataTables.buttons.js",
+        "js/dataTables.buttons.min.js",
+        "js/buttons.colVis.js",
+        "js/buttons.colVis.min.js",
+        "js/buttons.flash.js",
+        "js/buttons.flash.min.js",
+        "js/buttons.html5.js",
+        "js/buttons.html5.min.js",
+        "js/buttons.print.js",
+        "js/buttons.print.min.js"
+    ],
+    "src-repo": "http://github.com/DataTables/Buttons",
+    "last-sync": "c81e2e8f21d6f20efc167ba7bf4e5a3d89bbde2e",
+    "last-tag": "1.0.3"
+}
