@@ -6,8 +6,28 @@
  * Copyright © 2015 Eli Grey - http://eligrey.com
  */
 
-(function($, DataTable) {
-"use strict";
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net', 'datatables.net-buttons'], factory );
+	}
+	else if ( typeof exports === 'object' ) {
+		// Node / CommonJS
+		module.exports = function ($, dt) {
+			if ( ! $ ) { $ = require('jquery'); }
+			if ( ! $.fn.dataTable ) { require('datatables.net')($); }
+			if ( ! $.fn.dataTable.Buttons ) { require('datatables.net-buttons')($); }
+
+			factory( $ );
+		};
+	}
+	else {
+		// Browser
+		factory( jQuery );
+	}
+}(function( $ ) {
+'use strict';
+var DataTable = $.fn.dataTable;
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -247,26 +267,43 @@ var _saveAs = (function(view) {
  */
 
 /**
- * Get the title / file name for an exported file.
+ * Get the file name for an exported file.
  *
  * @param {object}  config       Button configuration
  * @param {boolean} incExtension Include the file name extension
  */
 var _filename = function ( config, incExtension )
 {
-	var title = config.title;
+	// Backwards compatibility
+	var filename = config.filename === '*' && config.title !== '*' && config.title !== undefined ?
+		config.title :
+		config.filename;
 
-	if ( title.indexOf( '*' ) !== -1 ) {
-		title = title.replace( '*', $('title').text() );
+	if ( filename.indexOf( '*' ) !== -1 ) {
+		filename = filename.replace( '*', $('title').text() );
 	}
 
 	// Strip characters which the OS will object to
-	title = title.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, "");
+	filename = filename.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, "");
 
 	return incExtension === undefined || incExtension === true ?
-		title+config.extension :
-		title;
+		filename+config.extension :
+		filename;
 };
+
+/**
+ * Get the title for an exported file.
+ *
+ * @param {object}  config  Button configuration
+ */
+var _title = function ( config )
+{
+	var title = config.title;
+
+	return title.indexOf( '*' ) !== -1 ?
+		title.replace( '*', $('title').text() ) :
+		title;
+}
 
 /**
  * Get the newline character(s)
@@ -295,10 +332,14 @@ var _exportData = function ( dt, config )
 {
 	var newLine = _newLine( config );
 	var data = dt.buttons.exportData( config.exportOptions );
+	var boundary = config.fieldBoundary;
+	var separator = config.fieldSeparator;
+	var reBoundary = new RegExp( boundary, 'g' );
+	var escapeChar = config.escapeChar !== undefined ?
+		config.escapeChar :
+		'\\';
 	var join = function ( a ) {
 		var s = '';
-		var boundary = config.fieldBoundary;
-		var separator = config.fieldSeparator;
 
 		// If there is a field boundary, then we might need to escape it in
 		// the source data
@@ -308,7 +349,7 @@ var _exportData = function ( dt, config )
 			}
 
 			s += boundary ?
-				boundary + a[i].replace( boundary, '\\'+boundary ) + boundary :
+				boundary + ('' + a[i]).replace( reBoundary, escapeChar+boundary ) + boundary :
 				a[i];
 		}
 
@@ -480,14 +521,28 @@ DataTable.ext.buttons.csvHtml5 = {
 		// Set the text
 		var newLine = _newLine( config );
 		var output = _exportData( dt, config ).str;
+		var charset = config.charset;
+
+		if ( charset !== false ) {
+			if ( ! charset ) {
+				charset = document.characterSet || document.charset;
+			}
+
+			if ( charset ) {
+				charset = ';charset='+charset;
+			}
+		}
+		else {
+			charset = '';
+		}
 
 		_saveAs(
-			new Blob( [output], {type : 'text/csv'} ),
+			new Blob( [output], {type: 'text/csv'+charset} ),
 			_filename( config )
 		);
 	},
 
-	title: '*',
+	filename: '*',
 
 	extension: '.csv',
 
@@ -496,6 +551,10 @@ DataTable.ext.buttons.csvHtml5 = {
 	fieldSeparator: ',',
 
 	fieldBoundary: '"',
+
+	escapeChar: '"',
+
+	charset: null,
 
 	header: true,
 
@@ -524,11 +583,15 @@ DataTable.ext.buttons.excelHtml5 = {
 			var cells = [];
 
 			for ( var i=0, ien=row.length ; i<ien ; i++ ) {
-				cells.push( $.isNumeric( row[i] ) ?
+				cells.push( typeof row[i] === 'number' || (row[i].match && row[i].match(/^[0-9\-\.]+$/)) ?
 					'<c t="n"><v>'+row[i]+'</v></c>' :
-					'<c t="inlineStr"><is><t>'+
-						row[i].replace(/&(?!amp;)/g, '&amp;')+
-					'</t></is></c>'
+					'<c t="inlineStr"><is><t>'+(
+						! row[i].replace ?
+							row[i] :
+							row[i]
+								.replace(/&(?!amp;)/g, '&amp;')
+								.replace(/[\x00-\x1F\x7F-\x9F]/g, ''))+ // remove control characters
+					'</t></is></c>'                                    // they are not valid in XML
 				);
 			}
 
@@ -565,7 +628,7 @@ DataTable.ext.buttons.excelHtml5 = {
 		);
 	},
 
-	title: '*',
+	filename: '*',
 
 	extension: '.xlsx',
 
@@ -598,7 +661,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 		if ( config.header ) {
 			rows.push( $.map( data.header, function ( d ) {
 				return {
-					text: d,
+					text: typeof d === 'string' ? d : d+'',
 					style: 'tableHeader'
 				};
 			} ) );
@@ -607,7 +670,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 		for ( var i=0, ien=data.body.length ; i<ien ; i++ ) {
 			rows.push( $.map( data.body[i], function ( d ) {
 				return {
-					text: d,
+					text: typeof d === 'string' ? d : d+'',
 					style: i % 2 ? 'tableBodyEven' : 'tableBodyOdd'
 				};
 			} ) );
@@ -616,7 +679,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 		if ( config.footer ) {
 			rows.push( $.map( data.footer, function ( d ) {
 				return {
-					text: d,
+					text: typeof d === 'string' ? d : d+'',
 					style: 'tableFooter'
 				};
 			} ) );
@@ -673,7 +736,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 
 		if ( config.title ) {
 			doc.content.unshift( {
-				text: _filename( config, false ),
+				text: _title( config, false ),
 				style: 'title',
 				margin: [ 0, 0, 0, 12 ]
 			} );
@@ -699,6 +762,8 @@ DataTable.ext.buttons.pdfHtml5 = {
 
 	title: '*',
 
+	filename: '*',
+
 	extension: '.pdf',
 
 	exportOptions: {},
@@ -719,4 +784,5 @@ DataTable.ext.buttons.pdfHtml5 = {
 };
 
 
-})(jQuery, jQuery.fn.dataTable);
+return DataTable.Buttons;
+}));

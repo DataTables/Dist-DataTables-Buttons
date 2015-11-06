@@ -1,11 +1,29 @@
-/*! Buttons for DataTables 1.0.3
+/*! Buttons for DataTables 1.1.0-dev
  * ©2015 SpryMedia Ltd - datatables.net/license
  */
-(function(window, document, undefined) {
 
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net'], factory );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		module.exports = function ($) {
+			if ( ! $ ) { $ = require('jquery'); }
+			if ( ! $.fn.dataTable ) { require('datatables.net')($); }
 
-var factory = function( $, DataTable ) {
-"use strict";
+			factory( $ );
+		};
+	}
+	else {
+		// Browser standard
+		factory( jQuery );
+	}
+}(function( $ ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
 
 // Used for namespacing events added to the document by each instance, so they
 // can be removed on destroy
@@ -710,6 +728,10 @@ $.extend( Buttons.prototype, {
 			// array of button configurations (which will be iterated
 			// separately)
 			while ( ! $.isPlainObject(base) && ! $.isArray(base) ) {
+				if ( base === undefined ) {
+					return;
+				}
+
 				if ( typeof base === 'function' ) {
 					base = base( dt, conf );
 
@@ -742,6 +764,10 @@ $.extend( Buttons.prototype, {
 		while ( conf && conf.extend ) {
 			// Use `toConfObject` in case the button definition being extended
 			// is itself a string or a function
+			if ( ! _dtButtons[ conf.extend ] ) {
+				throw 'Cannot extend unknown button type: '+conf.extend;
+			}
+
 			var objArray = toConfObject( _dtButtons[ conf.extend ] );
 			if ( $.isArray( objArray ) ) {
 				return objArray;
@@ -1052,7 +1078,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.0.3';
+Buttons.version = '1.1.0-dev';
 
 
 $.extend( _dtButtons, {
@@ -1066,6 +1092,13 @@ $.extend( _dtButtons, {
 			var host = button;
 			var hostOffset = host.offset();
 			var tableContainer = $( dt.table().container() );
+			var multiLevel = false;
+
+			// Remove any old collection
+			if ( $('div.dt-button-background').length ) {
+				multiLevel = $('div.dt-button-collection').offset();
+				$(document).trigger( 'click.dtb-collection' );
+			}
 
 			config._collection
 				.addClass( config.collectionLayout )
@@ -1073,7 +1106,15 @@ $.extend( _dtButtons, {
 				.appendTo( 'body' )
 				.fadeIn( config.fade );
 
-			if ( config._collection.css( 'position' ) === 'absolute' ) {
+			var position = config._collection.css( 'position' );
+
+			if ( multiLevel && position === 'absolute' ) {
+				config._collection.css( {
+					top: multiLevel.top + 5, // magic numbers for a little offset
+					left: multiLevel.left + 5
+				} );
+			}
+			else if ( position === 'absolute' ) {
 				config._collection.css( {
 					top: hostOffset.top + host.outerHeight(),
 					left: hostOffset.left
@@ -1361,6 +1402,27 @@ DataTable.Api.register( 'buttons.exportData()', function ( options ) {
 	}
 } );
 
+var _strip = function ( str ) {
+	if ( typeof str !== 'string' ) {
+		return str;
+	}
+
+	if ( config.stripHtml ) {
+		str = str.replace( /<.*?>/g, '' );
+	}
+
+	if ( config.trim ) {
+		str = str.replace( /^\s+|\s+$/g, '' );
+	}
+
+	if ( config.stripNewlines ) {
+		str = str.replace( /\n/g, ' ' );
+	}
+
+	return str;
+};
+
+
 var _exportData = function ( dt, inOpts )
 {
 	var config = $.extend( true, {}, {
@@ -1373,7 +1435,18 @@ var _exportData = function ( dt, inOpts )
 		orthogonal:    'display',
 		stripHtml:     true,
 		stripNewlines: true,
-		trim:          true
+		trim:          true,
+		format:        {
+			header: function ( d ) {
+				return strip( d );
+			},
+			footer: function ( d ) {
+				return strip( d );
+			},
+			body: function ( d ) {
+				return strip( d );
+			}
+		}
 	}, inOpts );
 
 	var strip = function ( str ) {
@@ -1396,25 +1469,25 @@ var _exportData = function ( dt, inOpts )
 		return str;
 	};
 
+
 	var header = dt.columns( config.columns ).indexes().map( function (idx, i) {
-		return strip( dt.column( idx ).header().innerHTML );
+		return config.format.header( dt.column( idx ).header().innerHTML, idx );
 	} ).toArray();
 
 	var footer = dt.table().footer() ?
 		dt.columns( config.columns ).indexes().map( function (idx, i) {
 			var el = dt.column( idx ).footer();
-			return el ?
-				strip( el.innerHTML ) :
-				'';
+			return config.format.footer( el ? el.innerHTML : '', idx );
 		} ).toArray() :
 		null;
 
+	var rowIndexes = dt.rows( config.rows, config.modifier ).indexes().toArray();
 	var cells = dt
-		.cells( config.rows, config.columns, config.modifier )
+		.cells( rowIndexes, config.columns )
 		.render( config.orthogonal )
 		.toArray();
 	var columns = header.length;
-	var rows = cells.length / columns;
+	var rows = columns > 0 ? cells.length / columns : 0;
 	var body = new Array( rows );
 	var cellCounter = 0;
 
@@ -1422,7 +1495,7 @@ var _exportData = function ( dt, inOpts )
 		var row = new Array( columns );
 
 		for ( var j=0 ; j<columns ; j++ ) {
-			row[j] = strip( cells[ cellCounter ] );
+			row[j] = config.format.body( cells[ cellCounter ], j, i );
 			cellCounter++;
 		}
 
@@ -1467,7 +1540,7 @@ $(document).on( 'init.dt.dtb', function (e, settings, json) {
 DataTable.ext.feature.push( {
 	fnInit: function( settings ) {
 		var api = new DataTable.Api( settings );
-		var opts = api.init().buttons;
+		var opts = api.init().buttons || DataTable.defaults.buttons;
 
 		return new Buttons( api, opts ).container();
 	},
@@ -1476,22 +1549,4 @@ DataTable.ext.feature.push( {
 
 
 return Buttons;
-}; // /factory
-
-
-// Define as an AMD module if possible
-if ( typeof define === 'function' && define.amd ) {
-	define( ['jquery', 'datatables'], factory );
-}
-else if ( typeof exports === 'object' ) {
-    // Node/CommonJS
-    factory( require('jquery'), require('datatables') );
-}
-else if ( jQuery && !jQuery.fn.dataTable.Buttons ) {
-	// Otherwise simply initialise as normal, stopping multiple evaluation
-	factory( jQuery, jQuery.fn.dataTable );
-}
-
-
-})(window, document);
-
+}));

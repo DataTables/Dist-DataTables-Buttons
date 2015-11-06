@@ -3,8 +3,28 @@
  * 2015 SpryMedia Ltd - datatables.net/license
  */
 
-(function($, DataTable) {
-"use strict";
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net', 'datatables.net-buttons'], factory );
+	}
+	else if ( typeof exports === 'object' ) {
+		// Node / CommonJS
+		module.exports = function ($, dt) {
+			if ( ! $ ) { $ = require('jquery'); }
+			if ( ! $.fn.dataTable ) { require('datatables.net')($); }
+			if ( ! $.fn.dataTable.Buttons ) { require('datatables.net-buttons')($); }
+
+			factory( $ );
+		};
+	}
+	else {
+		// Browser
+		factory( jQuery );
+	}
+}(function( $ ) {
+'use strict';
+var DataTable = $.fn.dataTable;
 
 
 $.extend( DataTable.ext.buttons, {
@@ -82,6 +102,10 @@ $.extend( DataTable.ext.buttons, {
 					}
 				} )
 				.on( 'column-reorder.dt'+conf.namespace, function (e, settings, details) {
+					if ( typeof conf.columns === 'number' ) {
+						conf.columns = details.mapping[ conf.columns ];
+					}
+
 					var col = dt.column( conf.columns );
 
 					button.text( conf._columnText( dt, conf.columns ) );
@@ -146,4 +170,5 @@ $.extend( DataTable.ext.buttons, {
 } );
 
 
-})(jQuery, jQuery.fn.dataTable);
+return DataTable.Buttons;
+}));

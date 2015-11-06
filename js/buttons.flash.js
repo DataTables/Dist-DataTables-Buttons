@@ -6,8 +6,28 @@
  * Copyright (c) 2012 Joseph Huckaby
  */
 
-(function($, DataTable) {
-"use strict";
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net', 'datatables.net-buttons'], factory );
+	}
+	else if ( typeof exports === 'object' ) {
+		// Node / CommonJS
+		module.exports = function ($, dt) {
+			if ( ! $ ) { $ = require('jquery'); }
+			if ( ! $.fn.dataTable ) { require('datatables.net')($); }
+			if ( ! $.fn.dataTable.Buttons ) { require('datatables.net-buttons')($); }
+
+			factory( $ );
+		};
+	}
+	else {
+		// Browser
+		factory( jQuery );
+	}
+}(function( $ ) {
+'use strict';
+var DataTable = $.fn.dataTable;
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -450,26 +470,43 @@ var _glue = function ( flash, node )
 };
 
 /**
- * Get the title / file name for an exported file.
+ * Get the file name for an exported file.
  *
  * @param {object}  config       Button configuration
  * @param {boolean} incExtension Include the file name extension
  */
 var _filename = function ( config, incExtension )
 {
-	var title = config.title;
+	// Backwards compatibility
+	var filename = config.filename === '*' && config.title !== '*' && config.title !== undefined ?
+		config.title :
+		config.filename;
 
-	if ( title.indexOf( '*' ) !== -1 ) {
-		title = title.replace( '*', $('title').text() );
+	if ( filename.indexOf( '*' ) !== -1 ) {
+		filename = filename.replace( '*', $('title').text() );
 	}
 
 	// Strip characters which the OS will object to
-	title = title.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, "");
+	filename = filename.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, "");
 
 	return incExtension === undefined || incExtension === true ?
-		title+config.extension :
-		title;
+		filename+config.extension :
+		filename;
 };
+
+/**
+ * Get the title for an exported file.
+ *
+ * @param {object}  config  Button configuration
+ */
+var _title = function ( config )
+{
+	var title = config.title;
+
+	return title.indexOf( '*' ) !== -1 ?
+		title.replace( '*', $('title').text() ) :
+		title;
+}
 
 /**
  * Set the flash text. This has to be broken up into chunks as the Javascript /
@@ -519,10 +556,14 @@ var _exportData = function ( dt, config )
 {
 	var newLine = _newLine( config );
 	var data = dt.buttons.exportData( config.exportOptions );
+	var boundary = config.fieldBoundary;
+	var separator = config.fieldSeparator;
+	var reBoundary = new RegExp( boundary, 'g' );
+	var escapeChar = config.escapeChar !== undefined ?
+		config.escapeChar :
+		'\\';
 	var join = function ( a ) {
 		var s = '';
-		var boundary = config.fieldBoundary;
-		var separator = config.fieldSeparator;
 
 		// If there is a field boundary, then we might need to escape it in
 		// the source data
@@ -532,7 +573,7 @@ var _exportData = function ( dt, config )
 			}
 
 			s += boundary ?
-				boundary + a[i].replace( boundary, '\\'+boundary ) + boundary :
+				boundary + ('' + a[i]).replace( reBoundary, escapeChar+boundary ) + boundary :
 				a[i];
 		}
 
@@ -588,6 +629,8 @@ var flashButton = {
 	exportOptions: {},
 
 	title: '*',
+
+	filename: '*',
 
 	extension: '.csv',
 
@@ -670,7 +713,9 @@ DataTable.ext.buttons.csvFlash = $.extend( {}, flashButton, {
 		flash.setAction( 'csv' );
 		flash.setFileName( _filename( config ) );
 		_setText( flash, data.str );
-	}
+	},
+
+	escapeChar: '"'
 } );
 
 // Excel save file - this is really a CSV file using UTF-8 that Excel can read
@@ -690,11 +735,15 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 			var cells = [];
 
 			for ( var i=0, ien=row.length ; i<ien ; i++ ) {
-				cells.push( $.isNumeric( row[i] ) ?
+				cells.push( typeof row[i] === 'number' || (row[i].match && row[i].match(/^[0-9\-\.]+$/)) ?
 					'<c t="n"><v>'+row[i]+'</v></c>' :
-					'<c t="inlineStr"><is><t>'+
-						row[i].replace(/&(?!amp;)/g, '&amp;')+
-					'</t></is></c>'
+					'<c t="inlineStr"><is><t>'+(
+						! row[i].replace ?
+							row[i] :
+							row[i]
+								.replace(/&(?!amp;)/g, '&amp;')
+								.replace(/[\x00-\x1F\x7F-\x9F]/g, ''))+ // remove control characters
+					'</t></is></c>'                                    // they are not valid in XML
 				);
 			}
 
@@ -741,7 +790,7 @@ DataTable.ext.buttons.pdfFlash = $.extend( {}, flashButton, {
 		} );
 
 		flash.setAction( 'pdf' );
-		flash.setFileName( _filename( config ) );
+		flash.setFileName( _title( config ) );
 
 		_setText( flash, JSON.stringify( {
 			title:       _filename(config, false),
@@ -767,4 +816,5 @@ DataTable.ext.buttons.pdfFlash = $.extend( {}, flashButton, {
 } );
 
 
-})(jQuery, jQuery.fn.dataTable);
+return DataTable.Buttons;
+}));
