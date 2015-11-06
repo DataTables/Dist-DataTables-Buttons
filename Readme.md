@@ -19,7 +19,7 @@ npm install datatables.net-buttons
 
 ```
 var $ = require( 'jquery' );
-require( 'datatables.net-buttons' )( $ );
+require( 'datatables.net-buttons' )( window, $ );
 ```
 
 ### bower
