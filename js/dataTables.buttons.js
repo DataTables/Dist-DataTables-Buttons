@@ -111,21 +111,17 @@ $.extend( Buttons.prototype, {
 	},
 
 	/**
-	 * Add an active class to the button to make to look active or get current
-	 * active state.
+	 * Add an active class to the button to make to look active
 	 * @param  {int|string} Button index
-	 * @param  {boolean} [flag] Enable / disable flag
-	 * @return {Buttons} Self for chaining or boolean for getter
+	 * @param  {boolean} [flag=true] Enable / disable flag
+	 * @return {Buttons} Self for chaining
 	 */
 	active: function ( idx, flag ) {
 		var button = this._indexToButton( idx );
-		var klass = this.c.dom.button.active;
-
-		if ( flag === undefined ) {
-			return button.node.hasClass( klass );
-		}
-
-		button.node.toggleClass( klass, flag === undefined ? true : flag );
+		button.node.toggleClass(
+			this.c.dom.button.active,
+			flag === undefined ? true : flag
+		);
 
 		return this;
 	},
@@ -467,7 +463,6 @@ $.extend( Buttons.prototype, {
 	_buildButtons: function ( buttons, container, collectionCounter )
 	{
 		var dt = this.s.dt;
-		var buttonCounter = 0;
 
 		if ( ! container ) {
 			container = this.dom.container;
@@ -522,7 +517,7 @@ $.extend( Buttons.prototype, {
 				conf._collection = $('<'+collectionDom.tag+'/>')
 					.addClass( collectionDom.className );
 
-				this._buildButtons( conf.buttons, conf._collection, buttonCounter );
+				this._buildButtons( conf.buttons, conf._collection, i );
 			}
 
 			// init call is made here, rather than buildButton as it needs to
@@ -530,8 +525,6 @@ $.extend( Buttons.prototype, {
 			if ( conf.init ) {
 				conf.init.call( dt.button( buttonNode ), dt, buttonNode, conf );
 			}
-
-			buttonCounter++;
 		}
 	},
 
@@ -1319,13 +1312,7 @@ DataTable.Api.register( 'button()', function ( group, selector ) {
 } );
 
 // Active buttons
-DataTable.Api.registerPlural( 'buttons().active()', 'button().active()', function ( flag ) {
-	if ( flag === undefined ) {
-		return this.map( function ( set ) {
-			 return set.inst.active( set.idx );
-		} );
-	}
-
+DataTable.Api.register( ['buttons().active()', 'button().active()'], function ( flag ) {
 	return this.each( function ( set ) {
 		set.inst.active( set.idx, flag );
 	} );
