@@ -108,7 +108,7 @@ $.extend( DataTable.ext.buttons, {
 
 			dt
 				.on( 'column-visibility.dt'+conf.namespace, function (e, settings, column, state) {
-					if ( ! settings.bDestroying && column === conf.columns ) {
+					if ( column === conf.columns ) {
 						that.active( state );
 					}
 				} )
