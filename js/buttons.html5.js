@@ -673,10 +673,6 @@ DataTable.ext.buttons.excelHtml5 = {
 			return '<row>'+cells.join('')+'</row>';
 		};
 
-		if ( config.customizeData ) {
-			config.customizeData( data );
-		}
-
 		if ( config.header ) {
 			xml += addRow( data.header );
 		}
