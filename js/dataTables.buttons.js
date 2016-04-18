@@ -476,10 +476,6 @@ $.extend( Buttons.prototype, {
 			this.s.subButtons = [];
 		}
 
-		// Take a copy of the holding array in case the buttons initialisation
-		// manipulates it. Any object references are retained
-		buttons = buttons.slice();
-
 		for ( var i=0, ien=buttons.length ; i<ien ; i++ ) {
 			var conf = this._resolveExtends( buttons[i] );
 

@@ -664,8 +664,15 @@ DataTable.ext.buttons.excelHtml5 = {
 		var workbook_Rels = $.parseXML( excelStrings['xl/_rels/workbook.xml.rels']); //Parses xml
 		var _Rels = $.parseXML( excelStrings['_rels/.rels']); //Parses xml
 
+
+
+
+
+
 		var data = dt.buttons.exportData( config.exportOptions );
 		var currentRow;
+		console.log(rels);
+		console.log(xlsx);
 		var addRow = function ( row ) {
 
 			//Create a row element
@@ -685,13 +692,9 @@ DataTable.ext.buttons.excelHtml5 = {
 				var is;
 				var cellId = createCellPos(i) + "" + currentRow; //Concat both the Cell Columns as a letter and the Row of the cell.
 
-				// Detect numbers - don't match numbers with a leading zero and
-				// more digits following it but allow for floats <1.
-				if ( typeof row[i] === 'number' || (
-					row[i].match &&
-					$.trim(row[i]).match(/^-?\d+(\.\d+)?$/) &&
-					! $.trim(row[i]).match(/^0\d+/) )
-				) {
+				// Don't match numbers with leading zeros or a negative anywhere
+				// but the start
+				if( typeof row[i] === 'number' || (row[i].match && $.trim(row[i]).match(/^-?\d+(\.\d+)?$/) && row[i].charAt(0) !== '0') ){
 				    ele = rels.createElement( "c" );
 						ele.setAttribute( "t","n" );
 						ele.setAttribute( "r", cellId ); //Adds cellId attribute into sheet1.xml so the cells can be mapped properly inside spreadsheet applications
@@ -724,9 +727,7 @@ DataTable.ext.buttons.excelHtml5 = {
 			rowPos++;
 		};
 
-		if ( config.customizeData ) {
-			config.customizeData( data );
-		}
+
 
 		if ( config.header ) {
 			addRow( data.header, rowPos ); //Add header row
@@ -744,6 +745,27 @@ DataTable.ext.buttons.excelHtml5 = {
 			addRow( data.footer, rowPos);
 			$('row:last c', rels).attr( 's', '1' );
 		}
+		if ( config.customizeData ) {
+			var xlsx = {
+				_rels: {
+					".rels": rels
+				},
+				xl: {
+					_rels: {
+						"workbook.xml": workbook_Rels
+					},
+					"workbook.xml": workbook,
+					"styles.xml": styles,
+					"worksheets": {
+						"sheet1.xml": rels
+					}
+
+				},
+				"[Content_Types].xml": contentTypes
+			}
+			config.customizeData( xlsx );
+
+		}
 
 		var zip           = new window.JSZip();
 		var _rels         = zip.folder("_rels");
@@ -759,6 +781,26 @@ DataTable.ext.buttons.excelHtml5 = {
 		var sContenttypes = oSerializer.serializeToString( contentTypes );
 		var sWorkbook_Rels = oSerializer.serializeToString( workbook_Rels );
 		var s_Rels = oSerializer.serializeToString( _Rels );
+
+		xlsx = {
+			_rels: {
+				".rels": rels
+			},
+			xl: {
+				_rels: {
+					"workbook.xml": workbook_Rels
+				},
+				"workbook.xml": workbook,
+				"styles.xml": styles,
+				"worksheets": {
+					"sheet1.xml": rels
+				}
+
+			},
+			"[Content_Types].xml": contentTypes
+		}
+
+		console.log(xlsx);
 
 		zip.file(           '[Content_Types].xml', sContenttypes );
 		_rels.file(         '.rels',               s_Rels );
