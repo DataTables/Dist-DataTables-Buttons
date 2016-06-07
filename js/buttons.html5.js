@@ -865,20 +865,19 @@ DataTable.ext.buttons.copyHtml5 = {
 			textarea[0].select();
 
 			try {
-				var successful = document.execCommand( 'copy' );
+				document.execCommand( 'copy' );
 				hiddenDiv.remove();
 
-				if (successful) {
-					dt.buttons.info(
-						dt.i18n( 'buttons.copyTitle', 'Copy to clipboard' ),
-						dt.i18n( 'buttons.copySuccess', {
-							1: 'Copied one row to clipboard',
-							_: 'Copied %d rows to clipboard'
+				dt.buttons.info(
+					dt.i18n( 'buttons.copyTitle', 'Copy to clipboard' ),
+					dt.i18n( 'buttons.copySuccess', {
+							1: "Copied one row to clipboard",
+							_: "Copied %d rows to clipboard"
 						}, exportData.rows ),
-						2000
-					);
-					return;
-				}
+					2000
+				);
+
+				return;
 			}
 			catch (t) {}
 		}
@@ -932,6 +931,8 @@ DataTable.ext.buttons.copyHtml5 = {
 // CSV export
 //
 DataTable.ext.buttons.csvHtml5 = {
+	bom: false,
+
 	className: 'buttons-csv buttons-html5',
 
 	available: function () {
@@ -964,9 +965,14 @@ DataTable.ext.buttons.csvHtml5 = {
 			charset = '';
 		}
 
+		if ( config.bom ) {
+			output = '\ufeff' + output;
+		}
+
 		_saveAs(
 			new Blob( [output], {type: 'text/csv'+charset} ),
-			_filename( config )
+			_filename( config ),
+			true
 		);
 	},
 
