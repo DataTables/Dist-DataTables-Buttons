@@ -35,17 +35,17 @@
 		// Browser
 		factory( jQuery, window, document );
 	}
-}(function( $, window, document, jszip, pdfmake, undefined ) {
+}(function( $, window, document, jsZip, pdfMake, undefined ) {
 'use strict';
 var DataTable = $.fn.dataTable;
 
 // Allow the constructor to pass in JSZip and PDFMake from external requires.
 // Otherwise, use globally defined variables, if they are available.
-function _jsZip () {
-	return jszip || window.JSZip;
+if ( jsZip === undefined ) {
+	jsZip = window.JSZip;
 }
-function _pdfMake () {
-	return pdfmake || window.pdfMake;
+if ( pdfMake === undefined ) {
+	pdfMake = window.pdfMake;
 }
 
 
@@ -759,7 +759,7 @@ var excelStrings = {
 			'<cellStyleXfs count="1">'+
 				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" />'+
 			'</cellStyleXfs>'+
-			'<cellXfs count="2">'+
+			'<cellXfs count="56">'+
 				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="1" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="2" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
@@ -810,6 +810,24 @@ var excelStrings = {
 				'<xf numFmtId="0" fontId="2" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="3" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="4" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>'+
+				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
+					'<alignment horizontal="left"/>'+
+				'</xf>'+
+				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
+					'<alignment horizontal="center"/>'+
+				'</xf>'+
+				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
+					'<alignment horizontal="right"/>'+
+				'</xf>'+
+				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
+					'<alignment horizontal="fill"/>'+
+				'</xf>'+
+				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
+					'<alignment textRotation="90"/>'+
+				'</xf>'+
+				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
+					'<alignment wrapText="1"/>'+
+				'</xf>'+
 			'</cellXfs>'+
 			'<cellStyles count="1">'+
 				'<cellStyle name="Normal" xfId="0" builtinId="0" />'+
@@ -1003,7 +1021,7 @@ DataTable.ext.buttons.excelHtml5 = {
 	className: 'buttons-excel buttons-html5',
 
 	available: function () {
-		return window.FileReader !== undefined && _jsZip() !== undefined && ! _isSafari() && _serialiser;
+		return window.FileReader !== undefined && jsZip !== undefined && ! _isSafari() && _serialiser;
 	},
 
 	text: function ( dt ) {
@@ -1141,8 +1159,7 @@ DataTable.ext.buttons.excelHtml5 = {
 			config.customize( xlsx );
 		}
 
-		var jszip = _jsZip();
-		var zip = new jszip();
+		var zip = new jsZip();
 		var zipConfig = {
 			type: 'blob',
 			mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -1185,7 +1202,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 	className: 'buttons-pdf buttons-html5',
 
 	available: function () {
-		return window.FileReader !== undefined && _pdfMake();
+		return window.FileReader !== undefined && pdfMake;
 	},
 
 	text: function ( dt ) {
@@ -1285,7 +1302,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 			config.customize( doc, config );
 		}
 
-		var pdf = _pdfMake().createPdf( doc );
+		var pdf = pdfMake.createPdf( doc );
 
 		if ( config.download === 'open' && ! _isSafari() ) {
 			pdf.open();
