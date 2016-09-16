@@ -1135,7 +1135,7 @@ $.extend( _dtButtons, {
 
 			// Remove any old collection
 			if ( $('div.dt-button-background').length ) {
-				multiLevel = $('.dt-button-collection').offset();
+				multiLevel = $('div.dt-button-collection').offset();
 				$('body').trigger( 'click.dtb-collection' );
 			}
 
@@ -1149,8 +1149,8 @@ $.extend( _dtButtons, {
 
 			if ( multiLevel && position === 'absolute' ) {
 				config._collection.css( {
-					top: multiLevel.top,
-					left: multiLevel.left
+					top: multiLevel.top + 5, // magic numbers for a little offset
+					left: multiLevel.left + 5
 				} );
 			}
 			else if ( position === 'absolute' ) {
@@ -1273,7 +1273,6 @@ $.extend( _dtButtons, {
 			buttons: $.map( vals, function ( val, i ) {
 				return {
 					text: lang[i],
-					className: 'button-page-length',
 					action: function ( e, dt ) {
 						dt.page.len( val ).draw();
 					},
