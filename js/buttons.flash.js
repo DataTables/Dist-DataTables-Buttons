@@ -777,7 +777,7 @@ function _excelColWidth( data, col ) {
 
 		// Max width rather than having potentially massive column widths
 		if ( max > 40 ) {
-			break;
+			return 52; // 40 * 1.3
 		}
 	}
 
@@ -787,19 +787,11 @@ function _excelColWidth( data, col ) {
 	return max > 6 ? max : 6;
 }
 
-  var _serialiser = "";
-    if (typeof window.XMLSerializer === 'undefined') {
-        _serialiser = new function () {
-            this.serializeToString = function (input) {
-                return input.xml
-            }
-        };
-    } else {
-        _serialiser =  new XMLSerializer();
-    }
-
-    var _ieExcel;
-
+try {
+	var _serialiser = new XMLSerializer();
+	var _ieExcel;
+}
+catch (t) {}
 
 /**
  * Convert XML documents in an object to strings
