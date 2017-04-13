@@ -1,4 +1,4 @@
-/*! Buttons for DataTables 1.3.0-dev
+/*! Buttons for DataTables 1.2.4
  * ©2016 SpryMedia Ltd - datatables.net/license
  */
 
@@ -48,11 +48,6 @@ var _dtButtons = DataTable.ext.buttons;
  */
 var Buttons = function( dt, config )
 {
-	// If there is no config set it to an empty object
-	if ( typeof( config ) === 'undefined' ) {
-		config = {};	
-	}
-	
 	// Allow a boolean true for defaults
 	if ( config === true ) {
 		config = {};
@@ -467,8 +462,7 @@ $.extend( Buttons.prototype, {
 			if ( built.conf.buttons ) {
 				var collectionDom = this.c.dom.collection;
 				built.collection = $('<'+collectionDom.tag+'/>')
-					.addClass( collectionDom.className )
-					.attr( 'role', 'menu') ;
+					.addClass( collectionDom.className );
 				built.conf._collection = built.collection;
 
 				this._expandButton( built.buttons, built.conf.buttons, true, attachPoint );
@@ -1124,7 +1118,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.3.0-dev';
+Buttons.version = '1.2.4';
 
 
 $.extend( _dtButtons, {
