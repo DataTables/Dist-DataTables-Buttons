@@ -40,42 +40,30 @@ var DataTable = $.fn.dataTable;
 var _link = document.createElement( 'a' );
 
 /**
- * Clone link and style tags, taking into account the need to change the source
- * path.
+ * Convert a `link` tag's URL from a relative to an absolute address so it will
+ * work correctly in the popup window which has no base URL.
  *
  * @param  {node}     el Element to convert
  */
-var _styleToAbs = function( el ) {
+var _relToAbs = function( el ) {
 	var url;
 	var clone = $(el).clone()[0];
 	var linkHost;
 
 	if ( clone.nodeName.toLowerCase() === 'link' ) {
-		clone.href = _relToAbs( clone.href );
+		_link.href = clone.href;
+		linkHost = _link.host;
+
+		// IE doesn't have a trailing slash on the host
+		// Chrome has it on the pathname
+		if ( linkHost.indexOf('/') === -1 && _link.pathname.indexOf('/') !== 0) {
+			linkHost += '/';
+		}
+
+		clone.href = _link.protocol+"//"+linkHost+_link.pathname+_link.search;
 	}
 
 	return clone.outerHTML;
-};
-
-/**
- * Convert a URL from a relative to an absolute address so it will work
- * correctly in the popup window which has no base URL.
- *
- * @param  {string} href URL
- */
-var _relToAbs = function( href ) {
-	// Assign to a link on the original page so the browser will do all the
-	// hard work of figuring out where the file actually is
-	_link.href = href;
-	var linkHost = _link.host;
-
-	// IE doesn't have a trailing slash on the host
-	// Chrome has it on the pathname
-	if ( linkHost.indexOf('/') === -1 && _link.pathname.indexOf('/') !== 0) {
-		linkHost += '/';
-	}
-
-	return _link.protocol+"//"+linkHost+_link.pathname+_link.search;
 };
 
 
@@ -135,7 +123,7 @@ DataTable.ext.buttons.print = {
 		// in the host document and then appended to the new window.
 		var head = '<title>'+title+'</title>';
 		$('style, link').each( function () {
-			head += _styleToAbs( this );
+			head += _relToAbs( this );
 		} );
 
 		try {
@@ -157,10 +145,6 @@ DataTable.ext.buttons.print = {
 			html;
 
 		$(win.document.body).addClass('dt-print-view');
-
-		$('img', win.document.body).each( function ( i, img ) {
-			img.setAttribute( 'src', _relToAbs( img.getAttribute('src') ) );
-		} );
 
 		if ( config.customize ) {
 			config.customize( win );
