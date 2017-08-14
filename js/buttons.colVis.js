@@ -1,6 +1,6 @@
 /*!
  * Column visibility buttons for Buttons and DataTables.
- * 2016 SpryMedia Ltd - datatables.net/license
+ * 2015 SpryMedia Ltd - datatables.net/license
  */
 
 (function( factory ){
@@ -48,8 +48,7 @@ $.extend( DataTable.ext.buttons, {
 			className: 'buttons-colvis',
 			buttons: [ {
 				extend: 'columnsToggle',
-				columns: conf.columns,
-				columnText: conf.columnText
+				columns: conf.columns
 			} ]
 		};
 	},
@@ -59,8 +58,7 @@ $.extend( DataTable.ext.buttons, {
 		var columns = dt.columns( conf.columns ).indexes().map( function ( idx ) {
 			return {
 				extend: 'columnToggle',
-				columns: idx,
-				columnText: conf.columnText
+				columns: idx
 			};
 		} ).toArray();
 
@@ -71,8 +69,7 @@ $.extend( DataTable.ext.buttons, {
 	columnToggle: function ( dt, conf ) {
 		return {
 			extend: 'columnVisibility',
-			columns: conf.columns,
-			columnText: conf.columnText
+			columns: conf.columns
 		};
 	},
 
@@ -82,8 +79,7 @@ $.extend( DataTable.ext.buttons, {
 			return {
 				extend: 'columnVisibility',
 				columns: idx,
-				visibility: conf.visibility,
-				columnText: conf.columnText
+				visibility: conf.visibility
 			};
 		} ).toArray();
 
@@ -94,7 +90,7 @@ $.extend( DataTable.ext.buttons, {
 	columnVisibility: {
 		columns: undefined, // column selector
 		text: function ( dt, button, conf ) {
-			return conf._columnText( dt, conf );
+			return conf._columnText( dt, conf.columns );
 		},
 		className: 'buttons-columnVisibility',
 		action: function ( e, dt, button, conf ) {
@@ -108,11 +104,12 @@ $.extend( DataTable.ext.buttons, {
 		},
 		init: function ( dt, button, conf ) {
 			var that = this;
+			var col = dt.column( conf.columns );
 
 			dt
-				.on( 'column-visibility.dt'+conf.namespace, function (e, settings) {
-					if ( ! settings.bDestroying ) {
-						that.active( dt.column( conf.columns ).visible() );
+				.on( 'column-visibility.dt'+conf.namespace, function (e, settings, column, state) {
+					if ( ! settings.bDestroying && column === conf.columns ) {
+						that.active( state );
 					}
 				} )
 				.on( 'column-reorder.dt'+conf.namespace, function (e, settings, details) {
@@ -128,11 +125,11 @@ $.extend( DataTable.ext.buttons, {
 
 					var col = dt.column( conf.columns );
 
-					that.text( conf._columnText( dt, conf ) );
+					that.text( conf._columnText( dt, conf.columns ) );
 					that.active( col.visible() );
 				} );
 
-			this.active( dt.column( conf.columns ).visible() );
+			this.active( col.visible() );
 		},
 		destroy: function ( dt, button, conf ) {
 			dt
@@ -140,20 +137,16 @@ $.extend( DataTable.ext.buttons, {
 				.off( 'column-reorder.dt'+conf.namespace );
 		},
 
-		_columnText: function ( dt, conf ) {
+		_columnText: function ( dt, col ) {
 			// Use DataTables' internal data structure until this is presented
 			// is a public API. The other option is to use
 			// `$( column(col).node() ).text()` but the node might not have been
 			// populated when Buttons is constructed.
-			var idx = dt.column( conf.columns ).index();
-			var title = dt.settings()[0].aoColumns[ idx ].sTitle
+			var idx = dt.column( col ).index();
+			return dt.settings()[0].aoColumns[ idx ].sTitle
 				.replace(/\n/g," ")        // remove new lines
 				.replace( /<.*?>/g, "" )   // strip HTML
 				.replace(/^\s+|\s+$/g,""); // trim
-
-			return conf.columnText ?
-				conf.columnText( dt, idx, title ) :
-				title;
 		}
 	},
 
@@ -189,10 +182,8 @@ $.extend( DataTable.ext.buttons, {
 		className: 'buttons-colvisGroup',
 
 		action: function ( e, dt, button, conf ) {
-			dt.columns( conf.show ).visible( true, false );
-			dt.columns( conf.hide ).visible( false, false );
-
-			dt.columns.adjust();
+			dt.columns( conf.show ).visible( true );
+			dt.columns( conf.hide ).visible( false );
 		},
 
 		show: [],
