@@ -1,6 +1,6 @@
 {
     "name": "datatables.net-buttons",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "description": "Buttons for DataTables ",
     "files": [
         "js/dataTables.buttons.js",
@@ -31,7 +31,7 @@
     },
     "dependencies": {
         "jquery": ">=1.7",
-        "datatables.net": ">=1.10.9"
+        "datatables.net": "^1.10.15"
     },
     "repository": {
         "type": "git",
