@@ -3,11 +3,7 @@
     "version": "1.4.1",
     "description": "Buttons for DataTables ",
     "files": [
-        "js/dataTables.buttons.js",
-        "js/buttons.colVis.js",
-        "js/buttons.flash.js",
-        "js/buttons.html5.js",
-        "js/buttons.print.js"
+        "js/**/*.js"
     ],
     "main": "./js/dataTables.buttons.js",
     "keywords": [
