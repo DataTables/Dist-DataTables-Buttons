@@ -1,4 +1,4 @@
-/*! Buttons for DataTables 1.5.1
+/*! Buttons for DataTables 1.5.2-dev
  * ©2016-2017 SpryMedia Ltd - datatables.net/license
  */
 
@@ -1154,7 +1154,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.5.1';
+Buttons.version = '1.5.2-dev';
 
 
 $.extend( _dtButtons, {
@@ -1209,8 +1209,8 @@ $.extend( _dtButtons, {
 				var tableTop = tableContainer.offset().top;
 				var topOverflow = tableTop - listTop;
 				
-				// if bottom overflow is larger, move to the top because it fits better, or if dropup is requested
-				if (bottomOverflow > topOverflow || config.dropup) {
+				// if bottom overflow is larger, move to the top because it fits better
+				if (bottomOverflow > topOverflow) {
 					config._collection.css( 'top', hostPosition.top - config._collection.outerHeight() - 5);
 				}
 
