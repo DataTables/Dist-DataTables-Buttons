@@ -1132,7 +1132,7 @@ DataTable.ext.buttons.copyFlash = $.extend( {}, flashButton, {
 		}
 
 		if ( config.customize ) {
-			output = config.customize( output, config, dt );
+			output = config.customize( output, config );
 		}
 
 		flash.setAction( 'copy' );
@@ -1167,13 +1167,12 @@ DataTable.ext.buttons.csvFlash = $.extend( {}, flashButton, {
 		// Set the text
 		var flash = config._flash;
 		var data = _exportData( dt, config );
-		var info = dt.buttons.exportInfo( config );
 		var output = config.customize ?
-			config.customize( data.str, config, dt ) :
+			config.customize( data.str, config ) :
 			data.str;
 
 		flash.setAction( 'csv' );
-		flash.setFileName( info.filename );
+		flash.setFileName( _filename( config ) );
 		_setText( flash, output );
 	},
 
@@ -1382,7 +1381,7 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 
 		// Let the developer customise the document if they want to
 		if ( config.customize ) {
-			config.customize( xlsx, config, dt );
+			config.customize( xlsx );
 		}
 
 		_xlsxToStrings( xlsx );

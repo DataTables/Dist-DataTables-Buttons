@@ -96,12 +96,7 @@ DataTable.ext.buttons.print = {
 			var str = '<tr>';
 
 			for ( var i=0, ien=d.length ; i<ien ; i++ ) {
-				// null and undefined aren't useful in the print output
-				var dataOut = d[i] === null || d[i] === undefined ?
-					'' :
-					d[i];
-
-				str += '<'+tag+'>'+dataOut+'</'+tag+'>';
+				str += '<'+tag+'>'+d[i]+'</'+tag+'>';
 			}
 
 			return str + '</tr>';
@@ -159,11 +154,11 @@ DataTable.ext.buttons.print = {
 		} );
 
 		if ( config.customize ) {
-			config.customize( win, config, dt );
+			config.customize( win );
 		}
 
 		// Allow stylesheets time to load
-		win.setTimeout( function () {
+		setTimeout( function () {
 			if ( config.autoPrint ) {
 				win.print(); // blocking - so close will not
 				win.close(); // execute until this is done

@@ -813,7 +813,7 @@ DataTable.ext.buttons.copyHtml5 = {
 		}
 
 		if ( config.customize ) {
-			output = config.customize( output, config, dt );
+			output = config.customize( output, config );
 		}
 
 		var textarea = $('<textarea readonly/>')
@@ -925,7 +925,7 @@ DataTable.ext.buttons.csvHtml5 = {
 		var charset = config.charset;
 
 		if ( config.customize ) {
-			output = config.customize( output, config, dt );
+			output = config.customize( output, config );
 		}
 
 		if ( charset !== false ) {
@@ -1188,7 +1188,7 @@ DataTable.ext.buttons.excelHtml5 = {
 
 		// Let the developer customise the document if they want to
 		if ( config.customize ) {
-			config.customize( xlsx, config, dt );
+			config.customize( xlsx );
 		}
 
 		// Excel doesn't like an empty mergeCells tag
@@ -1358,7 +1358,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 		}
 
 		if ( config.customize ) {
-			config.customize( doc, config, dt );
+			config.customize( doc, config );
 		}
 
 		var pdf = _pdfMake().createPdf( doc );
