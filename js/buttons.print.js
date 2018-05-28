@@ -96,12 +96,7 @@ DataTable.ext.buttons.print = {
 			var str = '<tr>';
 
 			for ( var i=0, ien=d.length ; i<ien ; i++ ) {
-				// null and undefined aren't useful in the print output
-				var dataOut = d[i] === null || d[i] === undefined ?
-					'' :
-					d[i];
-
-				str += '<'+tag+'>'+dataOut+'</'+tag+'>';
+				str += '<'+tag+'>'+d[i]+'</'+tag+'>';
 			}
 
 			return str + '</tr>';
