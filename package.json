@@ -3,7 +3,8 @@
     "version": "1.5.3",
     "description": "Buttons for DataTables ",
     "files": [
-        "js/**/*.js"
+        "js/**/*.js",
+        "swf/flashExport.swf"
     ],
     "main": "js/dataTables.buttons.js",
     "keywords": [
