@@ -1,4 +1,4 @@
-/*! Buttons for DataTables 1.5.2
+/*! Buttons for DataTables 1.5.4
  * ©2016-2018 SpryMedia Ltd - datatables.net/license
  */
 
@@ -489,7 +489,7 @@ $.extend( Buttons.prototype, {
 				var collectionDom = this.c.dom.collection;
 				built.collection = $('<'+collectionDom.tag+'/>')
 					.addClass( collectionDom.className )
-					.attr( 'role', 'menu') ;
+					.attr( 'role', 'menu' ) ;
 				built.conf._collection = built.collection;
 
 				this._expandButton( built.buttons, built.conf.buttons, true, attachPoint );
@@ -1150,7 +1150,10 @@ Buttons.defaults = {
 			className: 'dt-button-collection'
 		},
 		button: {
-			tag: 'button',
+			// Flash buttons will not work with `<button>` in IE - it has to be `<a>`
+			tag: 'ActiveXObject' in window ?
+				'a' :
+				'button',
 			className: 'dt-button',
 			active: 'active',
 			disabled: 'disabled'
@@ -1167,7 +1170,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.5.2';
+Buttons.version = '1.5.4';
 
 
 $.extend( _dtButtons, {
@@ -1195,12 +1198,14 @@ $.extend( _dtButtons, {
 				insertPoint = document.body.lastChild;
 			}
 
+			config._collection.find('.dt-button-collection-title').remove();
+			config._collection.prepend('<div class="dt-button-collection-title">'+config.collectionTitle+'</div>');
+
 			config._collection
 				.addClass( config.collectionLayout )
 				.css( 'display', 'none' )
 				.insertAfter( insertPoint )
 				.fadeIn( config.fade );
-			
 
 			var position = config._collection.css( 'position' );
 
@@ -1229,6 +1234,12 @@ $.extend( _dtButtons, {
 				// if bottom overflow is larger, move to the top because it fits better, or if dropup is requested
 				if (bottomOverflow > topOverflow || config.dropup) {
 					config._collection.css( 'top', hostPosition.top - config._collection.outerHeight() - 5);
+				}
+
+				// Right alignment is enabled on a class, e.g. bootstrap:
+				// $.fn.dataTable.Buttons.defaults.dom.collection.className += " dropdown-menu-right"; 
+				if ( config._collection.hasClass( config.rightAlignClassName ) ) {
+					config._collection.css( 'left', hostPosition.left + host.outerWidth() - config._collection.outerWidth() );
 				}
 
 				// Right alignment in table container
@@ -1304,7 +1315,9 @@ $.extend( _dtButtons, {
 		},
 		background: true,
 		collectionLayout: '',
+		collectionTitle: '',
 		backgroundClassName: 'dt-button-background',
+		rightAlignClassName: 'dt-button-right',
 		autoClose: false,
 		fade: 400,
 		attr: {
