@@ -1,6 +1,6 @@
 /*!
  * Flash export buttons for Buttons and DataTables.
- * 2015-2017 SpryMedia Ltd - datatables.net/license
+ * 2015 SpryMedia Ltd - datatables.net/license
  *
  * ZeroClipbaord - MIT license
  * Copyright (c) 2012 Joseph Huckaby
@@ -492,6 +492,35 @@ var _glue = function ( flash, node )
 };
 
 /**
+ * Get the file name for an exported file.
+ *
+ * @param {object}  config       Button configuration
+ * @param {boolean} incExtension Include the file name extension
+ */
+var _filename = function ( config, incExtension )
+{
+	// Backwards compatibility
+	var filename = config.filename === '*' && config.title !== '*' && config.title !== undefined ?
+		config.title :
+		config.filename;
+
+	if ( typeof filename === 'function' ) {
+		filename = filename();
+	}
+
+	if ( filename.indexOf( '*' ) !== -1 ) {
+		filename = $.trim( filename.replace( '*', $('title').text() ) );
+	}
+
+	// Strip characters which the OS will object to
+	filename = filename.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, "");
+
+	return incExtension === undefined || incExtension === true ?
+		filename+config.extension :
+		filename;
+};
+
+/**
  * Get the sheet name for Excel exports.
  *
  * @param {object}  config       Button configuration
@@ -505,6 +534,24 @@ var _sheetname = function ( config )
 	}
 
 	return sheetName;
+};
+
+/**
+ * Get the title for an exported file.
+ *
+ * @param {object}  config  Button configuration
+ */
+var _title = function ( config )
+{
+	var title = config.title;
+
+	if ( typeof title === 'function' ) {
+		title = title();
+	}
+
+	return title.indexOf( '*' ) !== -1 ?
+		title.replace( '*', $('title').text() || 'Exported data' ) :
+		title;
 };
 
 /**
@@ -629,10 +676,6 @@ var flashButton = {
 
 	title: '*',
 
-	messageTop: '*',
-
-	messageBottom: '*',
-
 	filename: '*',
 
 	extension: '.csv',
@@ -680,13 +723,13 @@ function _createNode( doc, nodeName, opts ){
 			$(tempNode).attr( opts.attr );
 		}
 
-		if ( opts.children ) {
+		if( opts.children ) {
 			$.each( opts.children, function ( key, value ) {
 				tempNode.appendChild( value );
-			} );
+			});
 		}
 
-		if ( opts.text !== null && opts.text !== undefined ) {
+		if( opts.text ) {
 			tempNode.appendChild( doc.createTextNode( opts.text ) );
 		}
 	}
@@ -702,31 +745,14 @@ function _createNode( doc, nodeName, opts ){
  */
 function _excelColWidth( data, col ) {
 	var max = data.header[col].length;
-	var len, lineSplit, str;
+	var len;
 
 	if ( data.footer && data.footer[col].length > max ) {
 		max = data.footer[col].length;
 	}
 
 	for ( var i=0, ien=data.body.length ; i<ien ; i++ ) {
-		var point = data.body[i][col];
-		str = point !== null && point !== undefined ?
-			point.toString() :
-			'';
-
-		// If there is a newline character, workout the width of the column
-		// based on the longest line in the string
-		if ( str.indexOf('\n') !== -1 ) {
-			lineSplit = str.split('\n');
-			lineSplit.sort( function (a, b) {
-				return b.length - a.length;
-			} );
-
-			len = lineSplit[0].length;
-		}
-		else {
-			len = str.length;
-		}
+		len = data.body[i][col].toString().length;
 
 		if ( len > max ) {
 			max = len;
@@ -734,29 +760,19 @@ function _excelColWidth( data, col ) {
 
 		// Max width rather than having potentially massive column widths
 		if ( max > 40 ) {
-			return 52; // 40 * 1.3
+			break;
 		}
 	}
 
-	max *= 1.3;
-
 	// And a min width
-	return max > 6 ? max : 6;
+	return max > 5 ? max : 5;
 }
 
-  var _serialiser = "";
-    if (typeof window.XMLSerializer === 'undefined') {
-        _serialiser = new function () {
-            this.serializeToString = function (input) {
-                return input.xml
-            }
-        };
-    } else {
-        _serialiser =  new XMLSerializer();
-    }
-
-    var _ieExcel;
-
+try {
+	var _serialiser = new XMLSerializer();
+	var _ieExcel;
+}
+catch (t) {}
 
 /**
  * Convert XML documents in an object to strings
@@ -819,9 +835,11 @@ function _xlsxToStrings( obj ) {
 				str = str.replace( /_dt_b_namespace_token_/g, ':' );
 			}
 
-			// Safari, IE and Edge will put empty name space attributes onto
-			// various elements making them useless. This strips them out
-			str = str.replace( /<([^<>]*?) xmlns=""([^<>]*?)>/g, '<$1 $2>' );
+			// Both IE and Edge will put empty name space attributes onto the
+			// rows and columns making them useless
+			str = str
+				.replace( /<row xmlns="" /g, '<row ' )
+				.replace( /<cols xmlns="">/g, '<cols>' );
 
 			obj[ name ] = str;
 		}
@@ -871,20 +889,11 @@ var excelStrings = {
 		'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
 		'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">'+
 			'<sheetData/>'+
-			'<mergeCells count="0"/>'+
 		'</worksheet>',
 
 	"xl/styles.xml":
 		'<?xml version="1.0" encoding="UTF-8"?>'+
 		'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">'+
-			'<numFmts count="6">'+
-				'<numFmt numFmtId="164" formatCode="#,##0.00_-\ [$$-45C]"/>'+
-				'<numFmt numFmtId="165" formatCode="&quot;£&quot;#,##0.00"/>'+
-				'<numFmt numFmtId="166" formatCode="[$€-2]\ #,##0.00"/>'+
-				'<numFmt numFmtId="167" formatCode="0.0%"/>'+
-				'<numFmt numFmtId="168" formatCode="#,##0;(#,##0)"/>'+
-				'<numFmt numFmtId="169" formatCode="#,##0.00;(#,##0.00)"/>'+
-			'</numFmts>'+
 			'<fonts count="5" x14ac:knownFonts="1">'+
 				'<font>'+
 					'<sz val="11" />'+
@@ -915,9 +924,7 @@ var excelStrings = {
 				'<fill>'+
 					'<patternFill patternType="none" />'+
 				'</fill>'+
-				'<fill>'+ // Excel appears to use this as a dotted background regardless of values but
-					'<patternFill patternType="none" />'+ // to be valid to the schema, use a patternFill
-				'</fill>'+
+				'<fill/>'+ // Excel appears to use this as a dotted background regardless of values
 				'<fill>'+
 					'<patternFill patternType="solid">'+
 						'<fgColor rgb="FFD9D9D9" />'+
@@ -970,7 +977,7 @@ var excelStrings = {
 			'<cellStyleXfs count="1">'+
 				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" />'+
 			'</cellStyleXfs>'+
-			'<cellXfs count="61">'+
+			'<cellXfs count="56">'+
 				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="1" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="2" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
@@ -981,11 +988,11 @@ var excelStrings = {
 				'<xf numFmtId="0" fontId="2" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="3" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="4" fillId="2" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
-				'<xf numFmtId="0" fontId="0" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
-				'<xf numFmtId="0" fontId="1" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
-				'<xf numFmtId="0" fontId="2" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
-				'<xf numFmtId="0" fontId="3" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
-				'<xf numFmtId="0" fontId="4" fillId="3" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+				'<xf numFmtId="0" fontId="0" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+				'<xf numFmtId="0" fontId="1" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+				'<xf numFmtId="0" fontId="2" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+				'<xf numFmtId="0" fontId="3" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+				'<xf numFmtId="0" fontId="4" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="0" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="1" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
 				'<xf numFmtId="0" fontId="2" fillId="4" borderId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
@@ -1039,15 +1046,6 @@ var excelStrings = {
 				'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyAlignment="1">'+
 					'<alignment wrapText="1"/>'+
 				'</xf>'+
-				'<xf numFmtId="9"   fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="166" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="167" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="168" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="169" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="3" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
-				'<xf numFmtId="4" fontId="0" fillId="0" borderId="0" applyFont="1" applyFill="1" applyBorder="1" xfId="0" applyNumberFormat="1"/>'+
 			'</cellXfs>'+
 			'<cellStyles count="1">'+
 				'<cellStyle name="Normal" xfId="0" builtinId="0" />'+
@@ -1059,20 +1057,6 @@ var excelStrings = {
 // Note we could use 3 `for` loops for the styles, but when gzipped there is
 // virtually no difference in size, since the above can be easily compressed
 
-// Pattern matching for special number formats. Perhaps this should be exposed
-// via an API in future?
-var _excelSpecials = [
-	{ match: /^\-?\d+\.\d%$/,       style: 60, fmt: function (d) { return d/100; } }, // Precent with d.p.
-	{ match: /^\-?\d+\.?\d*%$/,     style: 56, fmt: function (d) { return d/100; } }, // Percent
-	{ match: /^\-?\$[\d,]+.?\d*$/,  style: 57 }, // Dollars
-	{ match: /^\-?£[\d,]+.?\d*$/,   style: 58 }, // Pounds
-	{ match: /^\-?€[\d,]+.?\d*$/,   style: 59 }, // Euros
-	{ match: /^\([\d,]+\)$/,        style: 61, fmt: function (d) { return -1 * d.replace(/[\(\)]/g, ''); } },  // Negative numbers indicated by brackets
-	{ match: /^\([\d,]+\.\d{2}\)$/, style: 62, fmt: function (d) { return -1 * d.replace(/[\(\)]/g, ''); } },  // Negative numbers indicated by brackets - 2d.p.
-	{ match: /^[\d,]+$/,            style: 63 }, // Numbers with thousand separators
-	{ match: /^[\d,]+\.\d{2}$/,     style: 64 }  // Numbers with 2d.p. and thousands separators
-];
-
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1080,7 +1064,7 @@ var _excelSpecials = [
  */
 
 // Set the default SWF path
-DataTable.Buttons.swfPath = '//cdn.datatables.net/buttons/'+DataTable.Buttons.version+'/swf/flashExport.swf';
+DataTable.Buttons.swfPath = '//cdn.datatables.net/buttons/1.2.0/swf/flashExport.swf';
 
 // Method to allow Flash buttons to be resized when made visible - as they are
 // of zero height and width if initialised hidden
@@ -1111,34 +1095,14 @@ DataTable.ext.buttons.copyFlash = $.extend( {}, flashButton, {
 			return;
 		}
 
-		this.processing( true );
-
 		var flash = config._flash;
-		var exportData = _exportData( dt, config );
-		var info = dt.buttons.exportInfo( config );
-		var newline = _newLine(config);
-		var output = exportData.str;
-
-		if ( info.title ) {
-			output = info.title + newline + newline + output;
-		}
-
-		if ( info.messageTop ) {
-			output = info.messageTop + newline + newline + output;
-		}
-
-		if ( info.messageBottom ) {
-			output = output + newline + newline + info.messageBottom;
-		}
-
-		if ( config.customize ) {
-			output = config.customize( output, config, dt );
-		}
+		var data = _exportData( dt, config );
+		var output = config.customize ?
+			config.customize( data.str, config ) :
+			data.str;
 
 		flash.setAction( 'copy' );
 		_setText( flash, output );
-
-		this.processing( false );
 
 		dt.buttons.info(
 			dt.i18n( 'buttons.copyTitle', 'Copy to clipboard' ),
@@ -1167,13 +1131,12 @@ DataTable.ext.buttons.csvFlash = $.extend( {}, flashButton, {
 		// Set the text
 		var flash = config._flash;
 		var data = _exportData( dt, config );
-		var info = dt.buttons.exportInfo( config );
 		var output = config.customize ?
-			config.customize( data.str, config, dt ) :
+			config.customize( data.str, config ) :
 			data.str;
 
 		flash.setAction( 'csv' );
-		flash.setFileName( info.filename );
+		flash.setFileName( _filename( config ) );
 		_setText( flash, output );
 	},
 
@@ -1189,8 +1152,6 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 	},
 
 	action: function ( e, dt, button, config ) {
-		this.processing( true );
-
 		var flash = config._flash;
 		var rowPos = 0;
 		var rels = $.parseXML( excelStrings['xl/worksheets/sheet1.xml'] ) ; //Parses xml
@@ -1223,93 +1184,54 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 			for ( var i=0, ien=row.length ; i<ien ; i++ ) {
 				// Concat both the Cell Columns as a letter and the Row of the cell.
 				var cellId = createCellPos(i) + '' + currentRow;
-				var cell = null;
+				var cell;
 
-				// For null, undefined of blank cell, continue so it doesn't create the _createNode
-				if ( row[i] === null || row[i] === undefined || row[i] === '' ) {
-					if ( config.createEmptyCells === true ) {
-						row[i] = '';
-					}
-					else {
-						continue;
-					}
+				if ( row[i] === null || row[i] === undefined ) {
+					row[i] = '';
 				}
 
-				row[i] = $.trim( row[i] );
-
-				// Special number formatting options
-				for ( var j=0, jen=_excelSpecials.length ; j<jen ; j++ ) {
-					var special = _excelSpecials[j];
-
-					// TODO Need to provide the ability for the specials to say
-					// if they are returning a string, since at the moment it is
-					// assumed to be a number
-					if ( row[i].match && ! row[i].match(/^0\d+/) && row[i].match( special.match ) ) {
-						var val = row[i].replace(/[^\d\.\-]/g, '');
-
-						if ( special.fmt ) {
-							val = special.fmt( val );
-						}
-
-						cell = _createNode( rels, 'c', {
-							attr: {
-								r: cellId,
-								s: special.style
-							},
-							children: [
-								_createNode( rels, 'v', { text: val } )
-							]
-						} );
-
-						break;
-					}
-				}
-
-				if ( ! cell ) {
-					if ( typeof row[i] === 'number' || (
+				// Detect numbers - don't match numbers with leading zeros or a negative
+				// anywhere but the start
+				if ( typeof row[i] === 'number' || (
 						row[i].match &&
-						row[i].match(/^-?\d+(\.\d+)?$/) &&
-						! row[i].match(/^0\d+/) )
-					) {
-						// Detect numbers - don't match numbers with leading zeros
-						// or a negative anywhere but the start
-						cell = _createNode( rels, 'c', {
-							attr: {
-								t: 'n',
-								r: cellId
-							},
-							children: [
-								_createNode( rels, 'v', { text: row[i] } )
-							]
-						} );
-					}
-					else {
-						// String output - replace non standard characters for text output
-						var text = ! row[i].replace ?
-							row[i] :
-							row[i].replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '');
+						$.trim(row[i]).match(/^-?\d+(\.\d+)?$/) &&
+						! $.trim(row[i]).match(/^0\d+/) )
+				) {
+					cell = _createNode( rels, 'c', {
+						attr: {
+							t: 'n',
+							r: cellId
+						},
+						children: [
+							_createNode( rels, 'v', { text: row[i] } )
+						]
+					} );
+				}
+				else {
+					// Replace non standard characters for text output
+					var text = ! row[i].replace ?
+						row[i] :
+						row[i].replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '');
 
-						cell = _createNode( rels, 'c', {
-							attr: {
-								t: 'inlineStr',
-								r: cellId
-							},
-							children:{
-								row: _createNode( rels, 'is', {
-									children: {
-										row: _createNode( rels, 't', {
-											text: text
-										} )
-									}
-								} )
-							}
-						} );
-					}
+					cell = _createNode( rels, 'c', {
+						attr: {
+							t: 'inlineStr',
+							r: cellId
+						},
+						children:{
+							row: _createNode( rels, 'is', {
+								children: {
+									row: _createNode( rels, 't', {
+										text: text
+									} )
+								}
+							} )
+						}
+					} );
 				}
 
 				rowNode.appendChild( cell );
 			}
-
 			relsGet.appendChild(rowNode);
 			rowPos++;
 		};
@@ -1320,34 +1242,9 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 			config.customizeData( data );
 		}
 
-		var mergeCells = function ( row, colspan ) {
-			var mergeCells = $('mergeCells', rels);
-
-			mergeCells[0].appendChild( _createNode( rels, 'mergeCell', {
-				attr: {
-					ref: 'A'+row+':'+createCellPos(colspan)+row
-				}
-			} ) );
-			mergeCells.attr( 'count', mergeCells.attr( 'count' )+1 );
-			$('row:eq('+(row-1)+') c', rels).attr( 's', '51' ); // centre
-		};
-
-		// Title and top messages
-		var exportInfo = dt.buttons.exportInfo( config );
-		if ( exportInfo.title ) {
-			addRow( [exportInfo.title], rowPos );
-			mergeCells( rowPos, data.header.length-1 );
-		}
-
-		if ( exportInfo.messageTop ) {
-			addRow( [exportInfo.messageTop], rowPos );
-			mergeCells( rowPos, data.header.length-1 );
-		}
-
-		// Table itself
 		if ( config.header ) {
 			addRow( data.header, rowPos );
-			$('row:last c', rels).attr( 's', '2' ); // bold
+			$('row c', rels).attr( 's', '2' ); // bold
 		}
 
 		for ( var n=0, ie=data.body.length ; n<ie ; n++ ) {
@@ -1357,12 +1254,6 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 		if ( config.footer && data.footer ) {
 			addRow( data.footer, rowPos);
 			$('row:last c', rels).attr( 's', '2' ); // bold
-		}
-
-		// Below the table
-		if ( exportInfo.messageBottom ) {
-			addRow( [exportInfo.messageBottom], rowPos );
-			mergeCells( rowPos, data.header.length-1 );
 		}
 
 		// Set column widths
@@ -1382,22 +1273,18 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 
 		// Let the developer customise the document if they want to
 		if ( config.customize ) {
-			config.customize( xlsx, config, dt );
+			config.customize( xlsx );
 		}
 
 		_xlsxToStrings( xlsx );
 
 		flash.setAction( 'excel' );
-		flash.setFileName( exportInfo.filename );
+		flash.setFileName( _filename( config ) );
 		flash.setSheetData( xlsx );
 		_setText( flash, '' );
-
-		this.processing( false );
 	},
 
-	extension: '.xlsx',
-	
-	createEmptyCells: false
+	extension: '.xlsx'
 } );
 
 
@@ -1411,12 +1298,9 @@ DataTable.ext.buttons.pdfFlash = $.extend( {}, flashButton, {
 	},
 
 	action: function ( e, dt, button, config ) {
-		this.processing( true );
-
 		// Set the text
 		var flash = config._flash;
 		var data = dt.buttons.exportData( config.exportOptions );
-		var info = dt.buttons.exportInfo( config );
 		var totalWidth = dt.table().node().offsetWidth;
 
 		// Calculate the column width ratios for layout of the table in the PDF
@@ -1425,21 +1309,18 @@ DataTable.ext.buttons.pdfFlash = $.extend( {}, flashButton, {
 		} );
 
 		flash.setAction( 'pdf' );
-		flash.setFileName( info.filename );
+		flash.setFileName( _filename( config ) );
 
 		_setText( flash, JSON.stringify( {
-			title:         info.title || '',
-			messageTop:    info.messageTop || '',
-			messageBottom: info.messageBottom || '',
-			colWidth:      ratios.toArray(),
-			orientation:   config.orientation,
-			size:          config.pageSize,
-			header:        config.header ? data.header : null,
-			footer:        config.footer ? data.footer : null,
-			body:          data.body
+			title:       _filename(config, false),
+			message: typeof config.message == 'function' ? config.message(dt, button, config) : config.message,
+			colWidth:    ratios.toArray(),
+			orientation: config.orientation,
+			size:        config.pageSize,
+			header:      config.header ? data.header : null,
+			footer:      config.footer ? data.footer : null,
+			body:        data.body
 		} ) );
-
-		this.processing( false );
 	},
 
 	extension: '.pdf',
@@ -1447,6 +1328,8 @@ DataTable.ext.buttons.pdfFlash = $.extend( {}, flashButton, {
 	orientation: 'portrait',
 
 	pageSize: 'A4',
+
+	message: '',
 
 	newline: '\n'
 } );
