@@ -52,7 +52,7 @@ DataTable.Buttons.pdfMake = function (_) {
 	if ( ! _ ) {
 		return _pdfMake();
 	}
-	pdfmake = _;
+	pdfmake = m_ake;
 }
 
 DataTable.Buttons.jszip = function (_) {
