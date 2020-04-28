@@ -1041,7 +1041,7 @@ $.extend( Buttons.prototype, {
 
 			// Get the size of the host buttons (left and width - and ...)
 			var buttonsLeft = hostNode.offset().left;
-			var buttonsWidth = hostNode.outerWidth()
+			var buttonsWidth = hostNode.width()
 			var buttonsRight = buttonsLeft + buttonsWidth;
 			
 			// You've then got all the numbers you need to do some calculations and if statements,
@@ -1053,6 +1053,7 @@ $.extend( Buttons.prototype, {
 			var popoverShuffle = 0;
 			if ( display.hasClass( options.rightAlignClassName ) || options.align === 'button-right' ) {
 				popoverShuffle = buttonsRight - popoverRight;
+
 				if(tableLeft > (popoverLeft + popoverShuffle)){
 					var leftGap = tableLeft - (popoverLeft + popoverShuffle);
 					var rightGap = tableRight - (popoverRight + popoverShuffle);
