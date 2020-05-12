@@ -386,7 +386,7 @@ function _addToZip( zip, obj ) {
 		// drop attributes
 		_ieExcel = _serialiser
 			.serializeToString(
-				( new window.DOMParser() ).parseFromString( excelStrings['xl/worksheets/sheet1.xml'], 'text/xml' )
+				$.parseXML( excelStrings['xl/worksheets/sheet1.xml'] )
 			)
 			.indexOf( 'xmlns:r' ) === -1;
 	}
