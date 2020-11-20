@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>datatables.net-buttons</id>
+        <version>1.6.3</version>
+        <description>Buttons for DataTables</description>
+        <authors>SpryMedia Ltd</authors>
+        <projectUrl>http://datatables.net</projectUrl>
+        <license type="expression">MIT</license>
+        <tags>buttons DataTables jQuery table </tags>
+        <repository type="git" url="https://github.com/DataTables/Dist-DataTables-Buttons.git"/>
+        <dependencies>
+            <dependency id="jquery" version="1.7.0"/>
+            <dependency id="datatables.net" version="1.10.15"/>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="js/datatables.buttons.js"/>
+        <file src="js/datatables.buttons.min.js"/>
+        <file src="js/buttons.colVis.js"/>
+        <file src="js/buttons.colVis.min.js"/>
+        <file src="js/buttons.flash.js"/>
+        <file src="js/buttons.flash.min.js"/>
+        <file src="js/buttons.html5.js"/>
+        <file src="js/buttons.html5.min.js"/>
+        <file src="js/buttons.print.js"/>
+        <file src="js/buttons.print.min.js"/>
+        <file src="types.d.ts"/>
+    </files>
+</package>
