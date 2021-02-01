@@ -12,6 +12,9 @@
         "js/buttons.print.js",
         "js/buttons.print.min.js"
     ],
+    "types": [
+        "types.d.ts"
+    ],
     "src-repo": "http://github.com/DataTables/Buttons",
     "last-sync": "c163836131f59c08d1778d39dac11fbb70fdf1ff",
     "last-tag": "1.6.5"
