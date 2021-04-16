@@ -962,7 +962,7 @@ DataTable.ext.buttons.csvHtml5 = {
 		}
 
 		if ( config.bom ) {
-			output = String.fromCharCode(0xFEFF) + output;
+			output = '\ufeff' + output;
 		}
 
 		_saveAs(
