@@ -1479,19 +1479,19 @@ Buttons.stripData = function ( str, config ) {
 	// Always remove comments
 	str = str.replace( /<!\-\-.*?\-\->/g, '' );
 
-	if ( ! config || config.stripHtml ) {
+	if ( config.stripHtml ) {
 		str = str.replace( /<[^>]*>/g, '' );
 	}
 
-	if ( ! config || config.trim ) {
+	if ( config.trim ) {
 		str = str.replace( /^\s+|\s+$/g, '' );
 	}
 
-	if ( ! config || config.stripNewlines ) {
+	if ( config.stripNewlines ) {
 		str = str.replace( /\n/g, ' ' );
 	}
 
-	if ( ! config || config.decodeEntities ) {
+	if ( config.decodeEntities ) {
 		_exportTextarea.innerHTML = str;
 		str = _exportTextarea.value;
 	}
