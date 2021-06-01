@@ -17,9 +17,15 @@ For inclusion of this library using a standard `<script>` tag, rather than using
 npm install datatables.net-buttons
 ```
 
+ES3 Syntax
 ```
 var $ = require( 'jquery' );
 require( 'datatables.net-buttons' )( window, $ );
+```
+
+ES6 Syntax
+```
+import 'datatables.net-buttons'
 ```
 
 ### bower
