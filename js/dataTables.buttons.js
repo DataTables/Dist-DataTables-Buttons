@@ -197,7 +197,8 @@ $.extend( Buttons.prototype, {
 			idx = split[ split.length-1 ]*1;
 		}
 
-		this._expandButton( buttons, config, base !== undefined, idx );
+		console.log(config)
+		this._expandButton( buttons, config, config.extend !== 'split' && base !== undefined, config.extend === 'split', false, idx );
 		this._draw();
 
 		return this;
@@ -487,7 +488,9 @@ $.extend( Buttons.prototype, {
 
 		container.children().detach();
 
+		console.log(container)
 		for ( var i=0, ien=buttons.length ; i<ien ; i++ ) {
+			console.log(buttons[i])
 			container.append( buttons[i].inserter );
 			container.append( ' ' );
 
@@ -504,7 +507,7 @@ $.extend( Buttons.prototype, {
 	 * @param  {boolean} inCollection true if the button is in a collection
 	 * @private
 	 */
-	_expandButton: function ( attachTo, button, inCollection, attachPoint )
+	_expandButton: function ( attachTo, button, inCollection, isSplit, inSplit, attachPoint )
 	{
 		var dt = this.s.dt;
 		var buttonCounter = 0;
@@ -522,14 +525,15 @@ $.extend( Buttons.prototype, {
 			// If the configuration is an array, then expand the buttons at this
 			// point
 			if ( Array.isArray( conf ) ) {
-				this._expandButton( attachTo, conf, inCollection, attachPoint );
+				this._expandButton( attachTo, conf, inCollection, false, true, attachPoint );
 				continue;
 			}
 
-			var built = this._buildButton( conf, inCollection );
+			var built = this._buildButton( conf, inCollection, isSplit, inSplit );
 			if ( ! built ) {
 				continue;
 			}
+			console.log(built)
 
 			if ( attachPoint !== undefined && attachPoint !== null ) {
 				attachTo.splice( attachPoint, 0, built );
@@ -544,7 +548,7 @@ $.extend( Buttons.prototype, {
 
 				built.conf._collection = built.collection;
 
-				this._expandButton( built.buttons, built.conf.buttons, true, attachPoint );
+				this._expandButton( built.buttons, built.conf.buttons, true, false, false, attachPoint );
 			}
 
 			// init call is made here, rather than buildButton as it needs to
@@ -564,11 +568,13 @@ $.extend( Buttons.prototype, {
 	 * @return {jQuery} Created button node (jQuery)
 	 * @private
 	 */
-	_buildButton: function ( config, inCollection )
+	_buildButton: function ( config, inCollection, isSplit, inSplit )
 	{
 		var buttonDom = this.c.dom.button;
 		var linerDom = this.c.dom.buttonLiner;
 		var collectionDom = this.c.dom.collection;
+		var splitDom = this.c.dom.split;
+		var splitCollectionDom = this.c.dom.splitCollection;
 		var dt = this.s.dt;
 		var text = function ( opt ) {
 			return typeof opt === 'function' ?
@@ -579,11 +585,24 @@ $.extend( Buttons.prototype, {
 		if ( inCollection && collectionDom.button ) {
 			buttonDom = collectionDom.button;
 		}
+		else if ( isSplit && splitDom.button ) {
+			buttonDom = splitDom.button;
+		}
+		else if ( inSplit && splitCollectionDom.button ) {
+			buttonDom = splitCollectionDom.button;
+		}
 
 		if ( inCollection && collectionDom.buttonLiner ) {
 			linerDom = collectionDom.buttonLiner;
 		}
+		else if ( isSplit && splitDom.buttonLiner ) {
+			linerDom = splitDom.buttonLiner;
+		}
+		else if ( inSplit && splitCollectionDom.buttonLiner ) {
+			linerDom = splitCollectionDom.buttonLiner
+		}
 
+		console.log(linerDom)
 		// Make sure that the button is available based on whatever requirements
 		// it has. For example, PDF button require pdfmake
 		if ( config.available && ! config.available( dt, config ) ) {
@@ -598,6 +617,8 @@ $.extend( Buttons.prototype, {
 			] );
 		};
 
+		console.log(config, buttonDom)
+		
 		var tag = config.tag || buttonDom.tag;
 		var clickBlurs = config.clickBlurs === undefined ? true : config.clickBlurs
 		var button = $('<'+tag+'/>')
@@ -687,12 +708,42 @@ $.extend( Buttons.prototype, {
 			inserter = this.c.buttonCreated( config, inserter );
 		}
 
+		var splitDiv;
+		console.log(isSplit)
+		if(isSplit) {
+			splitDiv = $('<div class="dt-btn-split-wrapper"/>')
+			splitDiv.append(button);
+			var dropButton = $('<button class="dt-btn-split-drop dt-button">&#x25BC;</button>')
+				.on( 'click.dtb', function (e) {
+					e.preventDefault();
+
+					if ( ! button.hasClass( buttonDom.disabled ) && config.action ) {
+						action( e, dt, button, config );
+					}
+					if( clickBlurs ) {
+						button.trigger('blur');
+					}
+				} )
+				.on( 'keyup.dtb', function (e) {
+					if ( e.keyCode === 13 ) {
+						if ( ! button.hasClass( buttonDom.disabled ) && config.action ) {
+							action( e, dt, button, config );
+						}
+					}
+				} );
+
+			splitDiv.append(dropButton);
+		}
+		console.log(splitDiv)
+
 		return {
 			conf:         config,
-			node:         button.get(0),
-			inserter:     inserter,
+			node:         isSplit ? splitDiv.get(0) : button.get(0),
+			inserter:     isSplit ? splitDiv : inserter,
 			buttons:      [],
 			inCollection: inCollection,
+			isSplit:	  isSplit,
+			inSplit:	  inSplit,
 			collection:   null
 		};
 	},
@@ -1041,35 +1092,29 @@ $.extend( Buttons.prototype, {
 
 		// Align the popover relative to the DataTables container
 		// Useful for wide popovers such as SearchPanes
-		if (
-			position === 'absolute' &&
-			(
-				display.hasClass( options.rightAlignClassName ) ||
-				display.hasClass( options.leftAlignClassName ) ||
-				options.align === 'dt-container'
-			)
-		) {
-
+		if (position === 'absolute') {
+			// Align relative to the host button
 			var hostPosition = hostNode.position();
+			var buttonPosition = $(hostButton.node()).position();
 
 			display.css( {
-				top: hostPosition.top + hostNode.outerHeight(),
+				top: buttonPosition.top + hostNode.outerHeight(),
 				left: hostPosition.left
 			} );
 
 			// calculate overflow when positioned beneath
 			var collectionHeight = display.outerHeight();
 			var tableBottom = tableContainer.offset().top + tableContainer.height();
-			var listBottom = hostPosition.top + hostNode.outerHeight() + collectionHeight;
+			var listBottom = buttonPosition.top + hostNode.outerHeight() + collectionHeight;
 			var bottomOverflow = listBottom - tableBottom;
 
 			// calculate overflow when positioned above
-			var listTop = hostPosition.top - collectionHeight;
+			var listTop = buttonPosition.top - collectionHeight;
 			var tableTop = tableContainer.offset().top;
 			var topOverflow = tableTop - listTop;
 
 			// if bottom overflow is larger, move to the top because it fits better, or if dropup is requested
-			var moveTop = hostPosition.top - collectionHeight - 5;
+			var moveTop = buttonPosition.top - collectionHeight - 5;
 			if ( (bottomOverflow > topOverflow || options.dropup) && -moveTop < tableTop ) {
 				display.css( 'top', moveTop);
 			}
@@ -1088,93 +1133,66 @@ $.extend( Buttons.prototype, {
 			var buttonsLeft = hostNode.offset().left;
 			var buttonsWidth = hostNode.outerWidth()
 			var buttonsRight = buttonsLeft + buttonsWidth;
-			
-			// You've then got all the numbers you need to do some calculations and if statements,
-			//  so we can do some quick JS maths and apply it only once
-			// If it has the right align class OR the buttons are right aligned OR the button container is floated right,
-			//  then calculate left position for the popover to align the popover to the right hand
-			//  side of the button - check to see if the left of the popover is inside the table container.
-			// If not, move the popover so it is, but not more than it means that the popover is to the right of the table container
-			var popoverShuffle = 0;
-			if ( display.hasClass( options.rightAlignClassName )) {
-				popoverShuffle = buttonsRight - popoverRight;
-				if(tableLeft > (popoverLeft + popoverShuffle)){
-					var leftGap = tableLeft - (popoverLeft + popoverShuffle);
-					var rightGap = tableRight - (popoverRight + popoverShuffle);
+
+			if (
+				display.hasClass( options.rightAlignClassName ) ||
+				display.hasClass( options.leftAlignClassName ) ||
+				options.align === 'dt-container'
+			){
+				// You've then got all the numbers you need to do some calculations and if statements,
+				//  so we can do some quick JS maths and apply it only once
+				// If it has the right align class OR the buttons are right aligned OR the button container is floated right,
+				//  then calculate left position for the popover to align the popover to the right hand
+				//  side of the button - check to see if the left of the popover is inside the table container.
+				// If not, move the popover so it is, but not more than it means that the popover is to the right of the table container
+				var popoverShuffle = 0;
+				if ( display.hasClass( options.rightAlignClassName )) {
+					popoverShuffle = buttonsRight - popoverRight;
+					if(tableLeft > (popoverLeft + popoverShuffle)){
+						var leftGap = tableLeft - (popoverLeft + popoverShuffle);
+						var rightGap = tableRight - (popoverRight + popoverShuffle);
+		
+						if(leftGap > rightGap){
+							popoverShuffle += rightGap; 
+						}
+						else {
+							popoverShuffle += leftGap;
+						}
+					}
+				}
+				// else attempt to left align the popover to the button. Similar to above, if the popover's right goes past the table container's right,
+				//  then move it back, but not so much that it goes past the left of the table container
+				else {
+					popoverShuffle = tableLeft - popoverLeft;
 	
-					if(leftGap > rightGap){
-						popoverShuffle += rightGap; 
-					}
-					else {
-						popoverShuffle += leftGap;
+					if(tableRight < (popoverRight + popoverShuffle)){
+						var leftGap = tableLeft - (popoverLeft + popoverShuffle);
+						var rightGap = tableRight - (popoverRight + popoverShuffle);
+	
+						if(leftGap > rightGap ){
+							popoverShuffle += rightGap;
+						}
+						else {
+							popoverShuffle += leftGap;
+						}
+	
 					}
 				}
+	
+				display.css('left', display.position().left + popoverShuffle);
 			}
-			// else attempt to left align the popover to the button. Similar to above, if the popover's right goes past the table container's right,
-			//  then move it back, but not so much that it goes past the left of the table container
 			else {
-				popoverShuffle = tableLeft - popoverLeft;
+				var top = hostNode.offset().top
+				var popoverShuffle = 0;
 
-				if(tableRight < (popoverRight + popoverShuffle)){
-					var leftGap = tableLeft - (popoverLeft + popoverShuffle);
-					var rightGap = tableRight - (popoverRight + popoverShuffle);
+				popoverShuffle = options.align === 'button-right'
+					? buttonsRight - popoverRight
+					: buttonsLeft - popoverLeft;
 
-					if(leftGap > rightGap ){
-						popoverShuffle += rightGap;
-					}
-					else {
-						popoverShuffle += leftGap;
-					}
-
-				}
+				display.css('left', display.position().left + popoverShuffle);
 			}
-
-			display.css('left', display.position().left + popoverShuffle);
 			
-		}
-		else if (position === 'absolute') {
-			// Align relative to the host button
-			var hostPosition = hostNode.position();
-
-			display.css( {
-				top: hostPosition.top + hostNode.outerHeight(),
-				left: hostPosition.left
-			} );
-
-			// calculate overflow when positioned beneath
-			var collectionHeight = display.outerHeight();
-			var top = hostNode.offset().top
-			var popoverShuffle = 0;
-
-			// Get the size of the host buttons (left and width - and ...)
-			var buttonsLeft = hostNode.offset().left;
-			var buttonsWidth = hostNode.outerWidth()
-			var buttonsRight = buttonsLeft + buttonsWidth;
-
-			// Get the size of the popover (left and width - and ...)
-			var popoverLeft = display.offset().left;
-			var popoverWidth = content.width();
-			var popoverRight = popoverLeft + popoverWidth;
-
-			var moveTop = hostPosition.top - collectionHeight - 5;
-			var tableBottom = tableContainer.offset().top + tableContainer.height();
-			var listBottom = hostPosition.top + hostNode.outerHeight() + collectionHeight;
-			var bottomOverflow = listBottom - tableBottom;
-
-			// calculate overflow when positioned above
-			var listTop = hostPosition.top - collectionHeight;
-			var tableTop = tableContainer.offset().top;
-			var topOverflow = tableTop - listTop;
-
-			if ( (bottomOverflow > topOverflow || options.dropup) && -moveTop < tableTop ) {
-				display.css( 'top', moveTop);
-			}
-
-			popoverShuffle = options.align === 'button-right'
-				? buttonsRight - popoverRight
-				: buttonsLeft - popoverLeft;
-
-			display.css('left', display.position().left + popoverShuffle);
+			
 		}
 		else {
 			// Fix position - centre on screen
@@ -1528,6 +1546,18 @@ Buttons.defaults = {
 		buttonLiner: {
 			tag: 'span',
 			className: ''
+		},
+		split: {
+			tag: 'div',
+			className: 'dt-button-split',
+			buttonLiner: {
+				tag: 'div',
+				className: 'dt-btn-split-liner'
+			}
+		},
+		splitCollection: {
+			tag: 'button',
+			className: 'dt-button-split-collection',
 		}
 	}
 };
@@ -1557,6 +1587,27 @@ $.extend( _dtButtons, {
 			}
 			else {
 				this.popover(config._collection, config);
+			}
+		},
+		attr: {
+			'aria-haspopup': true
+		}
+		// Also the popover options, defined in Buttons.popover
+	},
+	split: {
+		text: function ( dt ) {
+			return dt.i18n( 'buttons.split', 'Split' );
+		},
+		className: 'buttons-split',
+		init: function ( dt, button, config ) {
+			return button.attr( 'aria-expanded', false );
+		},
+		action: function ( e, dt, button, config ) {
+			if(button.hasClass("dt-btn-split-drop")) {
+				console.log("drop");
+			}
+			else {
+				console.log("primary")
 			}
 		},
 		attr: {
