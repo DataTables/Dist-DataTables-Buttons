@@ -197,8 +197,7 @@ $.extend( Buttons.prototype, {
 			idx = split[ split.length-1 ]*1;
 		}
 
-		console.log(config)
-		this._expandButton( buttons, config, config.extend !== 'split' && base !== undefined, config.extend === 'split', false, idx );
+		this._expandButton( buttons, config, base !== undefined, idx );
 		this._draw();
 
 		return this;
@@ -488,9 +487,7 @@ $.extend( Buttons.prototype, {
 
 		container.children().detach();
 
-		console.log(container)
 		for ( var i=0, ien=buttons.length ; i<ien ; i++ ) {
-			console.log(buttons[i])
 			container.append( buttons[i].inserter );
 			container.append( ' ' );
 
@@ -507,7 +504,7 @@ $.extend( Buttons.prototype, {
 	 * @param  {boolean} inCollection true if the button is in a collection
 	 * @private
 	 */
-	_expandButton: function ( attachTo, button, inCollection, isSplit, inSplit, attachPoint )
+	_expandButton: function ( attachTo, button, inCollection, attachPoint )
 	{
 		var dt = this.s.dt;
 		var buttonCounter = 0;
@@ -525,15 +522,14 @@ $.extend( Buttons.prototype, {
 			// If the configuration is an array, then expand the buttons at this
 			// point
 			if ( Array.isArray( conf ) ) {
-				this._expandButton( attachTo, conf, inCollection, false, true, attachPoint );
+				this._expandButton( attachTo, conf, inCollection, attachPoint );
 				continue;
 			}
 
-			var built = this._buildButton( conf, inCollection, isSplit, inSplit );
+			var built = this._buildButton( conf, inCollection );
 			if ( ! built ) {
 				continue;
 			}
-			console.log(built)
 
 			if ( attachPoint !== undefined && attachPoint !== null ) {
 				attachTo.splice( attachPoint, 0, built );
@@ -548,7 +544,7 @@ $.extend( Buttons.prototype, {
 
 				built.conf._collection = built.collection;
 
-				this._expandButton( built.buttons, built.conf.buttons, true, false, false, attachPoint );
+				this._expandButton( built.buttons, built.conf.buttons, true, attachPoint );
 			}
 
 			// init call is made here, rather than buildButton as it needs to
@@ -568,13 +564,11 @@ $.extend( Buttons.prototype, {
 	 * @return {jQuery} Created button node (jQuery)
 	 * @private
 	 */
-	_buildButton: function ( config, inCollection, isSplit, inSplit )
+	_buildButton: function ( config, inCollection )
 	{
 		var buttonDom = this.c.dom.button;
 		var linerDom = this.c.dom.buttonLiner;
 		var collectionDom = this.c.dom.collection;
-		var splitDom = this.c.dom.split;
-		var splitCollectionDom = this.c.dom.splitCollection;
 		var dt = this.s.dt;
 		var text = function ( opt ) {
 			return typeof opt === 'function' ?
@@ -585,24 +579,11 @@ $.extend( Buttons.prototype, {
 		if ( inCollection && collectionDom.button ) {
 			buttonDom = collectionDom.button;
 		}
-		else if ( isSplit && splitDom.button ) {
-			buttonDom = splitDom.button;
-		}
-		else if ( inSplit && splitCollectionDom.button ) {
-			buttonDom = splitCollectionDom.button;
-		}
 
 		if ( inCollection && collectionDom.buttonLiner ) {
 			linerDom = collectionDom.buttonLiner;
 		}
-		else if ( isSplit && splitDom.buttonLiner ) {
-			linerDom = splitDom.buttonLiner;
-		}
-		else if ( inSplit && splitCollectionDom.buttonLiner ) {
-			linerDom = splitCollectionDom.buttonLiner
-		}
 
-		console.log(linerDom)
 		// Make sure that the button is available based on whatever requirements
 		// it has. For example, PDF button require pdfmake
 		if ( config.available && ! config.available( dt, config ) ) {
@@ -617,8 +598,6 @@ $.extend( Buttons.prototype, {
 			] );
 		};
 
-		console.log(config, buttonDom)
-		
 		var tag = config.tag || buttonDom.tag;
 		var clickBlurs = config.clickBlurs === undefined ? true : config.clickBlurs
 		var button = $('<'+tag+'/>')
@@ -708,42 +687,12 @@ $.extend( Buttons.prototype, {
 			inserter = this.c.buttonCreated( config, inserter );
 		}
 
-		var splitDiv;
-		console.log(isSplit)
-		if(isSplit) {
-			splitDiv = $('<div class="dt-btn-split-wrapper"/>')
-			splitDiv.append(button);
-			var dropButton = $('<button class="dt-btn-split-drop dt-button">&#x25BC;</button>')
-				.on( 'click.dtb', function (e) {
-					e.preventDefault();
-
-					if ( ! button.hasClass( buttonDom.disabled ) && config.action ) {
-						action( e, dt, button, config );
-					}
-					if( clickBlurs ) {
-						button.trigger('blur');
-					}
-				} )
-				.on( 'keyup.dtb', function (e) {
-					if ( e.keyCode === 13 ) {
-						if ( ! button.hasClass( buttonDom.disabled ) && config.action ) {
-							action( e, dt, button, config );
-						}
-					}
-				} );
-
-			splitDiv.append(dropButton);
-		}
-		console.log(splitDiv)
-
 		return {
 			conf:         config,
-			node:         isSplit ? splitDiv.get(0) : button.get(0),
-			inserter:     isSplit ? splitDiv : inserter,
+			node:         button.get(0),
+			inserter:     inserter,
 			buttons:      [],
 			inCollection: inCollection,
-			isSplit:	  isSplit,
-			inSplit:	  inSplit,
 			collection:   null
 		};
 	},
@@ -1546,18 +1495,6 @@ Buttons.defaults = {
 		buttonLiner: {
 			tag: 'span',
 			className: ''
-		},
-		split: {
-			tag: 'div',
-			className: 'dt-button-split',
-			buttonLiner: {
-				tag: 'div',
-				className: 'dt-btn-split-liner'
-			}
-		},
-		splitCollection: {
-			tag: 'button',
-			className: 'dt-button-split-collection',
 		}
 	}
 };
@@ -1587,27 +1524,6 @@ $.extend( _dtButtons, {
 			}
 			else {
 				this.popover(config._collection, config);
-			}
-		},
-		attr: {
-			'aria-haspopup': true
-		}
-		// Also the popover options, defined in Buttons.popover
-	},
-	split: {
-		text: function ( dt ) {
-			return dt.i18n( 'buttons.split', 'Split' );
-		},
-		className: 'buttons-split',
-		init: function ( dt, button, config ) {
-			return button.attr( 'aria-expanded', false );
-		},
-		action: function ( e, dt, button, config ) {
-			if(button.hasClass("dt-btn-split-drop")) {
-				console.log("drop");
-			}
-			else {
-				console.log("primary")
 			}
 		},
 		attr: {
