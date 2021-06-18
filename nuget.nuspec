@@ -10,7 +10,7 @@
         <license type="expression">MIT</license>
         <tags>Buttons  Column Visibility  csv  excel  pdf  print  Datatables jQuery table</tags>
         <dependencies>
-            <dependency id="datatables.net" version=">=1.10.24"/>
+            <dependency id="datatables.net" version=">=1.10.26-dev"/>
         </dependencies>
         <contentFiles>
             <files include="**/*" buildAction="Content"/>

@@ -1,5 +1,5 @@
 {
-    "version": "1.7.0",
+    "version": "1.7.1",
     "name": "datatables.net/datatables.net-buttons",
     "description": "The Buttons extension for DataTables provides a common set of options, API methods and styling to display buttons on a page that will interact with a DataTable. It also provides plug-ins for file export (HTML5 and Flash), print view and column visibility. Other libraries, such as Editor and Select also provide buttons specific to their use cases. This is Buttons for DataTables",
     "support": {
@@ -30,6 +30,6 @@
         "table"
     ],
     "require": {
-        "datatables.net/datatables.net": ">=1.10.24"
+        "datatables.net/datatables.net": ">=1.10.26-dev"
     }
 }
