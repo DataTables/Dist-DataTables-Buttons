@@ -21,7 +21,7 @@
         "sort"
     ],
     "dependencies": {
-        "datatables.net": ">=1.10.26-dev",
+        "datatables.net": ">=1.10.25",
         "jquery": ">=1.7"
     },
     "moduleType": [

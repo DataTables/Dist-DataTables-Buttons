@@ -30,6 +30,6 @@
         "table"
     ],
     "require": {
-        "datatables.net/datatables.net": ">=1.10.26-dev"
+        "datatables.net/datatables.net": ">=1.10.25"
     }
 }
