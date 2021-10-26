@@ -180,9 +180,11 @@ $.extend( Buttons.prototype, {
 	 * Add a new button
 	 * @param {object} config Button configuration object, base string name or function
 	 * @param {int|string} [idx] Button index for where to insert the button
+	 * @param {boolean} [draw=true] Trigger a draw. Set a false when adding
+	 *   lots of buttons, until the last button.
 	 * @return {Buttons} Self for chaining
 	 */
-	add: function ( config, idx )
+	add: function ( config, idx, draw )
 	{
 		var buttons = this.s.buttons;
 
@@ -204,9 +206,13 @@ $.extend( Buttons.prototype, {
 			config !== undefined ? config.split : undefined,
 			(config === undefined || config.split === undefined || config.split.length === 0) && base !== undefined,
 			false,
-			idx );
-		this._draw();
+			idx
+		);
 
+		if (draw === undefined || draw === true) {
+			this._draw();
+		}
+	
 		return this;
 	},
 
@@ -225,14 +231,16 @@ $.extend( Buttons.prototype, {
 			}
 	
 			for (i=0; i<newButtons.length; i++) {
+				var newBtn = newButtons[i];
+
 				this._expandButton(
 					button.buttons,
-					newButtons[i],
-					newButtons[i] !== undefined && newButtons[i].config !== undefined && newButtons[i].config.split !== undefined,
+					newBtn,
+					newBtn !== undefined && newBtn.config !== undefined && newBtn.config.split !== undefined,
 					true,
-					newButtons[i].parentConf !== undefined && newButtons[i].parentConf.split !== undefined,
+					newBtn.parentConf !== undefined && newBtn.parentConf.split !== undefined,
 					i,
-					newButtons[i].parentConf
+					newBtn.parentConf
 				);
 			}
 		}
@@ -2079,7 +2087,7 @@ DataTable.Api.register( 'buttons().container()', function () {
 } );
 
 // Add a new button
-DataTable.Api.register( 'button().add()', function ( idx, conf ) {
+DataTable.Api.register( 'button().add()', function ( idx, conf, draw ) {
 	var ctx = this.context;
 
 	// Don't use `this` as it could be empty - select the instances directly
@@ -2087,7 +2095,7 @@ DataTable.Api.register( 'button().add()', function ( idx, conf ) {
 		var inst = Buttons.instanceSelector( this._groupSelector, ctx[0]._buttons );
 
 		if ( inst.length ) {
-			inst[0].add( conf, idx );
+			inst[0].add( conf, idx , draw);
 		}
 	}
 
