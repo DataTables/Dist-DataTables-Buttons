@@ -1861,7 +1861,7 @@ $.extend( _dtButtons, {
 			}
 		},
 		attr: {
-			'aria-haspopup': true
+			'aria-haspopup': 'dialog'
 		}
 		// Also the popover options, defined in Buttons.popover
 	},
