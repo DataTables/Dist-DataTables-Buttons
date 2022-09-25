@@ -1,4 +1,5 @@
-/*! Buttons for DataTables 2.2.2
+
+/*! Buttons for DataTables 2.2.3
  * ©2016-2022 SpryMedia Ltd - datatables.net/license
  */
 
@@ -13,12 +14,21 @@
 		// CommonJS
 		module.exports = function (root, $) {
 			if ( ! root ) {
+				// CommonJS environments without a window global must pass a
+				// root. This will give an error otherwise
 				root = window;
 			}
 
-			if ( ! $ || ! $.fn.dataTable ) {
-				$ = require('datatables.net')(root, $).$;
+			if ( ! $ ) {
+				$ = typeof window !== 'undefined' ? // jQuery's factory checks for a global window
+					require('jquery') :
+					require('jquery')( root );
 			}
+
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net')(root, $);
+			}
+
 
 			return factory( $, root, root.document );
 		};
@@ -30,6 +40,7 @@
 }(function( $, window, document, undefined ) {
 'use strict';
 var DataTable = $.fn.dataTable;
+
 
 
 // Used for namespacing events added to the document by each instance, so they
@@ -875,7 +886,7 @@ $.extend( Buttons.prototype, {
 			this._addKey(dropButtonConfig);
 
 			var splitAction = function ( e, dt, button, config ) {
-				_dtButtons.split.action.call( dt.button($('div.dt-btn-split-wrapper')[0] ), e, dt, button, config );
+				_dtButtons.split.action.call( dt.button(splitDiv), e, dt, button, config );
 	
 				$(dt.table().node()).triggerHandler( 'buttons-action.dt', [
 					dt.button( button ), dt, button, config 
@@ -1837,7 +1848,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '2.2.2';
+Buttons.version = '2.2.3';
 
 
 $.extend( _dtButtons, {
@@ -2512,5 +2523,5 @@ if ( DataTable.ext.features ) {
 }
 
 
-return Buttons;
+return DataTable;
 }));
