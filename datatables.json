@@ -9,13 +9,20 @@
         "js/buttons.print.js",
         "js/buttons.print.min.js",
         "js/dataTables.buttons.js",
-        "js/dataTables.buttons.min.js"
+        "js/dataTables.buttons.min.js",
+        "js/buttons.colVis.min.mjs",
+        "js/buttons.colVis.mjs",
+        "js/buttons.html5.min.mjs",
+        "js/buttons.html5.mjs",
+        "js/buttons.print.min.mjs",
+        "js/buttons.print.mjs",
+        "js/dataTables.buttons.min.mjs",
+        "js/dataTables.buttons.mjs"
     ],
     "css": [],
     "types": [
         "types/types.d.ts"
     ],
     "src-repo": "http://github.com/DataTables/Buttons",
-    "last-tag": "2.2.2",
-    "last-sync": "7ec8b48bfc3b566498528975a137a134b3b1f559"
+    "last-tag": "2.2.3"
 }
