@@ -24,5 +24,6 @@
         "types/types.d.ts"
     ],
     "src-repo": "http://github.com/DataTables/Buttons",
-    "last-tag": "2.2.3"
+    "last-tag": "2.2.3",
+    "last-sync": "c25ea69f9241501b36193afffb91196928aab18f"
 }
