@@ -1,4 +1,3 @@
-
 /*!
  * Print button for Buttons and DataTables.
  * 2016 SpryMedia Ltd - datatables.net/license
@@ -6,7 +5,7 @@
 
 import $ from 'jquery';
 import DataTable from 'datatables.net';
-import DataTable from 'datatables.net-buttons';
+import 'datatables.net-buttons';
 
 
 
