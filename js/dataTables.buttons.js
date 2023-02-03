@@ -1,5 +1,5 @@
-/*! Buttons for DataTables 2.3.3
- * ©2016-2022 SpryMedia Ltd - datatables.net/license
+/*! Buttons for DataTables 2.3.4
+ * ©2016-2023 SpryMedia Ltd - datatables.net/license
  */
 
 (function( factory ){
@@ -1851,7 +1851,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '2.3.3';
+Buttons.version = '2.3.4';
 
 
 $.extend( _dtButtons, {
