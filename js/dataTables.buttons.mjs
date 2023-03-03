@@ -1,10 +1,9 @@
-/*! Buttons for DataTables 2.3.5
+/*! Buttons for DataTables 2.3.6-dev
  * ©2016-2023 SpryMedia Ltd - datatables.net/license
  */
 
 import $ from 'jquery';
 import DataTable from 'datatables.net';
-
 
 
 // Used for namespacing events added to the document by each instance, so they
@@ -1817,7 +1816,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '2.3.5';
+Buttons.version = '2.3.6-dev';
 
 
 $.extend( _dtButtons, {

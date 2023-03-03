@@ -11,7 +11,6 @@ import DataTable from 'datatables.net';
 import Buttons from 'datatables.net-buttons';
 
 
-
 // Allow the constructor to pass in JSZip and PDFMake from external requires.
 // Otherwise, use globally defined variables, if they are available.
 var useJszip;

@@ -15,19 +15,8 @@
 	}
 	else if ( typeof exports === 'object' ) {
 		// CommonJS
-		module.exports = function (root, $, jszip, pdfmake) {
-			if ( ! root ) {
-				// CommonJS environments without a window global must pass a
-				// root. This will give an error otherwise
-				root = window;
-			}
-
-			if ( ! $ ) {
-				$ = typeof window !== 'undefined' ? // jQuery's factory checks for a global window
-					require('jquery') :
-					require('jquery')( root );
-			}
-
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
 			if ( ! $.fn.dataTable ) {
 				require('datatables.net')(root, $);
 			}
@@ -35,9 +24,28 @@
 			if ( ! $.fn.dataTable.Buttons ) {
 				require('datatables.net-buttons')(root, $);
 			}
-
-			return factory( $, root, root.document, jszip, pdfmake );
 		};
+
+		if (typeof window !== 'undefined') {
+			module.exports = function (root, $, jszip, pdfmake) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document, jszip, pdfmake );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
 	}
 	else {
 		// Browser

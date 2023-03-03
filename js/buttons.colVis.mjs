@@ -8,7 +8,6 @@ import DataTable from 'datatables.net';
 import Buttons from 'datatables.net-buttons';
 
 
-
 $.extend( DataTable.ext.buttons, {
 	// A collection of column visibility buttons
 	colvis: function ( dt, conf ) {

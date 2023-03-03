@@ -1,4 +1,4 @@
-/*! Buttons for DataTables 2.3.5
+/*! Buttons for DataTables 2.3.6-dev
  * ©2016-2023 SpryMedia Ltd - datatables.net/license
  */
 
@@ -11,25 +11,33 @@
 	}
 	else if ( typeof exports === 'object' ) {
 		// CommonJS
-		module.exports = function (root, $) {
-			if ( ! root ) {
-				// CommonJS environments without a window global must pass a
-				// root. This will give an error otherwise
-				root = window;
-			}
-
-			if ( ! $ ) {
-				$ = typeof window !== 'undefined' ? // jQuery's factory checks for a global window
-					require('jquery') :
-					require('jquery')( root );
-			}
-
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
 			if ( ! $.fn.dataTable ) {
 				require('datatables.net')(root, $);
 			}
-
-			return factory( $, root, root.document );
 		};
+
+		if (typeof window !== 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
 	}
 	else {
 		// Browser
@@ -1851,7 +1859,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '2.3.5';
+Buttons.version = '2.3.6-dev';
 
 
 $.extend( _dtButtons, {
