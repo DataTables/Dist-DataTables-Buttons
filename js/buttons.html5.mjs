@@ -6,9 +6,12 @@
  * Copyright © 2016 Eli Grey - http://eligrey.com
  */
 
-import $ from 'jquery';
+import jQuery from 'jquery';
 import DataTable from 'datatables.net';
 import Buttons from 'datatables.net-buttons';
+
+// Allow reassignment of the $ variable
+let $ = jQuery;
 
 
 // Allow the constructor to pass in JSZip and PDFMake from external requires.
