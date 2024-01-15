@@ -27,7 +27,7 @@
 		};
 
 		if (typeof window === 'undefined') {
-			module.exports = function (root, $, jszip, pdfmake) {
+			module.exports = function (root, $) {
 				if ( ! root ) {
 					// CommonJS environments without a window global must pass a
 					// root. This will give an error otherwise
@@ -39,7 +39,7 @@
 				}
 
 				cjsRequires( root, $ );
-				return factory( $, root, root.document, jszip, pdfmake );
+				return factory( $, root, root.document );
 			};
 		}
 		else {
@@ -51,7 +51,7 @@
 		// Browser
 		factory( jQuery, window, document );
 	}
-}(function( $, window, document, jszip, pdfmake, undefined ) {
+}(function( $, window, document ) {
 'use strict';
 var DataTable = $.fn.dataTable;
 

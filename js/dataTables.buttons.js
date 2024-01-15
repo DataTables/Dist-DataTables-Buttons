@@ -1,4 +1,4 @@
-/*! Buttons for DataTables 2.4.2
+/*! Buttons for DataTables 3.0.0-dev
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -43,7 +43,7 @@
 		// Browser
 		factory( jQuery, window, document );
 	}
-}(function( $, window, document, undefined ) {
+}(function( $, window, document ) {
 'use strict';
 var DataTable = $.fn.dataTable;
 
@@ -1996,7 +1996,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '2.4.2';
+Buttons.version = '3.0.0-dev';
 
 $.extend(_dtButtons, {
 	collection: {
