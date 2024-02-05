@@ -2555,7 +2555,7 @@ var _exportData = function (dt, inOpts) {
 				search: 'applied',
 				order: 'applied'
 			},
-			orthogonal: '',
+			orthogonal: 'display',
 			stripHtml: true,
 			stripNewlines: true,
 			decodeEntities: true,
