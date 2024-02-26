@@ -2664,7 +2664,7 @@ var _exportData = function (dt, inOpts) {
 	var cellNodes = selectedCells.nodes().toArray();
 	var cellIndexes = selectedCells.indexes().toArray();
 
-	var columns = header.length;
+	var columns = dt.columns(config.columns).count();
 	var rows = columns > 0 ? cells.length / columns : 0;
 	var body = [];
 	var cellCounter = 0;
@@ -2675,8 +2675,8 @@ var _exportData = function (dt, inOpts) {
 		for (var j = 0; j < columns; j++) {
 			row[j] = config.format.body(
 				cells[cellCounter],
-				cellIndexes[i + j].row,
-				cellIndexes[i + j].column,
+				cellIndexes[cellCounter].row,
+				cellIndexes[cellCounter].column,
 				cellNodes[cellCounter]
 			);
 			cellCounter++;
