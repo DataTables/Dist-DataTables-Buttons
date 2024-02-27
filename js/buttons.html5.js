@@ -27,7 +27,7 @@
 		};
 
 		if (typeof window === 'undefined') {
-			module.exports = function (root, $) {
+			module.exports = function (root, $, jszip, pdfmake) {
 				if ( ! root ) {
 					// CommonJS environments without a window global must pass a
 					// root. This will give an error otherwise
@@ -39,7 +39,7 @@
 				}
 
 				cjsRequires( root, $ );
-				return factory( $, root, root.document );
+				return factory( $, root, root.document, jszip, pdfmake );
 			};
 		}
 		else {
@@ -51,7 +51,7 @@
 		// Browser
 		factory( jQuery, window, document );
 	}
-}(function( $, window, document ) {
+}(function( $, window, document, jszip, pdfmake, undefined ) {
 'use strict';
 var DataTable = $.fn.dataTable;
 
@@ -567,7 +567,7 @@ function _excelColWidth(data, col) {
 	var max = data.header[col].length;
 	var len, lineSplit, str;
 
-	if (data.footer && data.footer[col].length > max) {
+	if (data.footer && data.footer[col] && data.footer[col].length > max) {
 		max = data.footer[col].length;
 	}
 
