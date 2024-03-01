@@ -48,7 +48,7 @@
 		// Browser
 		factory( jQuery, window, document );
 	}
-}(function( $, window, document, undefined ) {
+}(function( $, window, document ) {
 'use strict';
 var DataTable = $.fn.dataTable;
 
@@ -279,7 +279,7 @@ DataTable.ext.buttons.print = {
 
 	header: true,
 
-	footer: false,
+	footer: true,
 
 	autoPrint: true,
 

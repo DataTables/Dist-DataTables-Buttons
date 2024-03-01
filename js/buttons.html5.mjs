@@ -1000,7 +1000,7 @@ DataTable.ext.buttons.copyHtml5 = {
 
 	header: true,
 
-	footer: false,
+	footer: true,
 
 	title: '*',
 
@@ -1079,7 +1079,7 @@ DataTable.ext.buttons.csvHtml5 = {
 
 	header: true,
 
-	footer: false
+	footer: true
 };
 
 //
