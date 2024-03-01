@@ -341,7 +341,7 @@ var _exportData = function (dt, config) {
 	}
 
 	return {
-		str: header + body.join(newLine) + footer,
+		str: header + body.join(newLine) + newLine + footer,
 		rows: body.length
 	};
 };
