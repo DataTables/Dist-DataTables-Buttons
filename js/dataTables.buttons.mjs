@@ -2571,7 +2571,8 @@ var _exportData = function (dt, inOpts) {
 					return Buttons.stripData(d, config);
 				}
 			},
-			customizeData: null
+			customizeData: null,
+			customizeZip: null
 		},
 		inOpts
 	);
