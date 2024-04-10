@@ -1929,7 +1929,7 @@ Buttons.stripHtmlComments = function (input) {
 	
 	do {  
 	  previous = input;  
-	  input = input.replace(/(<!--.*?-->)|(<!--[\S\s]+?-->)|(<!--[\S\s]*?$)/g, '');  
+	  input = input.replace(/(<!--.*?--!?>)|(<!--[\S\s]+?--!?>)|(<!--[\S\s]*?$)/g, '');  
 	} while (input !== previous);  
 
 	return input;  
