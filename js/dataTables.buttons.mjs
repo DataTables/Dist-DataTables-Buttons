@@ -1,4 +1,4 @@
-/*! Buttons for DataTables 3.0.2
+/*! Buttons for DataTables 3.1.0
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -1995,7 +1995,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '3.0.2';
+Buttons.version = '3.1.0';
 
 $.extend(_dtButtons, {
 	collection: {
