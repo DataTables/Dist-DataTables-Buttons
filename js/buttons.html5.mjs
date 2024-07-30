@@ -1266,10 +1266,6 @@ DataTable.ext.buttons.excelHtml5 = {
 			});
 		};
 
-		if (config.customizeData) {
-			config.customizeData(data);
-		}
-
 		// Title and top messages
 		var exportInfo = dt.buttons.exportInfo(config);
 		if (exportInfo.title) {
