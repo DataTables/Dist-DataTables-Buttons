@@ -1489,7 +1489,7 @@ $.extend(Buttons.prototype, {
 		hostButtonNode.attr('aria-expanded', 'true');
 
 		if (hostNode.parents('body')[0] !== document.body) {
-			hostNode = document.body.lastChild;
+			hostNode = $(document.body).children().last();
 		}
 
 		if (options.popoverTitle) {
