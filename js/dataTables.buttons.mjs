@@ -454,6 +454,10 @@ $.extend(Buttons.prototype, {
 
 		$(button.node).remove();
 
+		if (button.inserter) {
+			$(button.inserter).remove();
+		}
+
 		var idx = $.inArray(button, host);
 		host.splice(idx, 1);
 
