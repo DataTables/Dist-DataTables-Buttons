@@ -1051,7 +1051,7 @@ $.extend(Buttons.prototype, {
 		return {
 			conf: config,
 			node: node,
-			nodeChild: node.children.length ? node.children[0] : null,
+			nodeChild: node && node.children && node.children.length ? node.children[0] : null,
 			inserter: isSplit ? splitDiv : inserter,
 			buttons: [],
 			inCollection: inCollection,
