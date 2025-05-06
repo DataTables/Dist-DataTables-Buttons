@@ -217,9 +217,8 @@ DataTable.ext.buttons.print = {
 		win.document.close();
 
 		// Inject the title and also a copy of the style and link tags from this
-		// document so the table can retain its base styling. Note that we have
-		// to use string manipulation as IE won't allow elements to be created
-		// in the host document and then appended to the new window.
+		// document so the table can retain its base styling. This avoids 
+        // issues with Content Security Policy (CSP) and is compatible with modern browsers.
 		win.document.title = exportInfo.title;
 	    $('style, link[rel="stylesheet"]').each(function () {
 	      let node = this.cloneNode(true);
@@ -227,7 +226,7 @@ DataTable.ext.buttons.print = {
 	        node.href = _relToAbs(node.href);
 	       }
 	       win.document.head.appendChild(node);
-	      });
+	    });
 	    
 		// Add any custom scripts (for example for paged.js)
 		if (config.customScripts) {
