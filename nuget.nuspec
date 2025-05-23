@@ -21,10 +21,6 @@
         <file src="js/buttons.colVis.js" target="contentFiles\any\any\wwwroot\js"/>
         <file src="js/buttons.colVis.min.js" target="content\Scripts"/>
         <file src="js/buttons.colVis.min.js" target="contentFiles\any\any\wwwroot\js"/>
-        <file src="js/buttons.flash.js" target="content\Scripts"/>
-        <file src="js/buttons.flash.js" target="contentFiles\any\any\wwwroot\js"/>
-        <file src="js/buttons.flash.min.js" target="content\Scripts"/>
-        <file src="js/buttons.flash.min.js" target="contentFiles\any\any\wwwroot\js"/>
         <file src="js/buttons.html5.js" target="content\Scripts"/>
         <file src="js/buttons.html5.js" target="contentFiles\any\any\wwwroot\js"/>
         <file src="js/buttons.html5.min.js" target="content\Scripts"/>
