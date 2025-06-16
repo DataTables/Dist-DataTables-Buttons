@@ -780,6 +780,7 @@ $.extend(Buttons.prototype, {
 		var configDom = this.c.dom;
 		var textNode;
 		var dt = this.s.dt;
+		var setLinerTab = false;
 		var text = function (opt) {
 			return typeof opt === 'function' ? opt(dt, button, config) : opt;
 		};
@@ -868,7 +869,6 @@ $.extend(Buttons.prototype, {
 
 			button = $('<' + tag + '/>')
 				.addClass(dom.className)
-				.attr('tabindex', this.s.dt.settings()[0].iTabIndex)
 				.attr('aria-controls', this.s.dt.table().node().id)
 				.on('click.dtb', function (e) {
 					e.preventDefault();
@@ -902,12 +902,18 @@ $.extend(Buttons.prototype, {
 			}
 
 			if (dom.liner.tag) {
-				var liner = $('<' + dom.liner.tag + '/>')
+				var lc = dom.liner.tag.toLowerCase();
+				var liner = $('<' + lc + '/>')
 					.html(text(config.text))
 					.addClass(dom.liner.className);
 
-				if (dom.liner.tag.toLowerCase() === 'a') {
+				if (lc === 'a') {
 					liner.attr('href', '#');
+				}
+
+				if (lc === 'a' || lc === 'button') {
+					liner.attr('tabindex', this.s.dt.settings()[0].iTabIndex);
+					setLinerTab = true;
 				}
 
 				button.append(liner);
@@ -916,6 +922,10 @@ $.extend(Buttons.prototype, {
 			else {
 				button.html(text(config.text));
 				textNode = button;
+			}
+
+			if (! setLinerTab) {
+				button.attr('tabindex', this.s.dt.settings()[0].iTabIndex)
 			}
 
 			if (config.enabled === false) {
