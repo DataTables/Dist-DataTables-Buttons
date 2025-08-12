@@ -10,7 +10,7 @@
         <license type="expression">MIT</license>
         <tags>Buttons  Column Visibility  csv  excel  pdf  print  Datatables jQuery table</tags>
         <dependencies>
-            <dependency id="datatables.net" version="1.12.1"/>
+            <dependency id="datatables.net" version="2.3.2"/>
         </dependencies>
         <contentFiles>
             <files include="**/*" buildAction="Content"/>
@@ -33,6 +33,22 @@
         <file src="js/dataTables.buttons.js" target="contentFiles\any\any\wwwroot\js"/>
         <file src="js/dataTables.buttons.min.js" target="content\Scripts"/>
         <file src="js/dataTables.buttons.min.js" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/buttons.colVis.min.mjs" target="content\Scripts"/>
+        <file src="js/buttons.colVis.min.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/buttons.colVis.mjs" target="content\Scripts"/>
+        <file src="js/buttons.colVis.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/buttons.html5.min.mjs" target="content\Scripts"/>
+        <file src="js/buttons.html5.min.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/buttons.html5.mjs" target="content\Scripts"/>
+        <file src="js/buttons.html5.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/buttons.print.min.mjs" target="content\Scripts"/>
+        <file src="js/buttons.print.min.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/buttons.print.mjs" target="content\Scripts"/>
+        <file src="js/buttons.print.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/dataTables.buttons.min.mjs" target="content\Scripts"/>
+        <file src="js/dataTables.buttons.min.mjs" target="contentFiles\any\any\wwwroot\js"/>
+        <file src="js/dataTables.buttons.mjs" target="content\Scripts"/>
+        <file src="js/dataTables.buttons.mjs" target="contentFiles\any\any\wwwroot\js"/>
     </files>
 </package>
 
