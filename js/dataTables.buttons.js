@@ -224,7 +224,7 @@ $.extend(Buttons.prototype, {
 			idx = split[split.length - 1] * 1;
 		}
 
-		this._expandButton(
+		let node = this._expandButton(
 			buttons,
 			config,
 			config !== undefined ? config.split : undefined,
@@ -240,7 +240,7 @@ $.extend(Buttons.prototype, {
 			this._draw();
 		}
 
-		return this;
+		return node;
 	},
 
 	/**
@@ -646,6 +646,7 @@ $.extend(Buttons.prototype, {
 		var isSplit = false;
 		var domCollection = this.c.dom.collection;
 		var buttons = !Array.isArray(button) ? [button] : button;
+		var lastButton;
 
 		if (button === undefined) {
 			buttons = !Array.isArray(split) ? [split] : split;
@@ -765,7 +766,11 @@ $.extend(Buttons.prototype, {
 			if (conf.init) {
 				conf.init.call(dt.button(built.node), dt, $(built.node), conf);
 			}
+
+			lastButton = built.node;
 		}
+
+		return lastButton;
 	},
 
 	/**
@@ -2550,6 +2555,7 @@ DataTable.Api.register('buttons().container()', function () {
 // Add a new button
 DataTable.Api.register('button().add()', function (idx, conf, draw) {
 	var ctx = this.context;
+	var node;
 
 	// Don't use `this` as it could be empty - select the instances directly
 	if (ctx.length) {
@@ -2559,11 +2565,13 @@ DataTable.Api.register('button().add()', function (idx, conf, draw) {
 		);
 
 		if (inst.length) {
-			inst[0].add(conf, idx, draw);
+			node = inst[0].add(conf, idx, draw);
 		}
 	}
 
-	return this.button(this._groupSelector, idx);
+	return node
+		? this.button(this._groupSelector, node)
+		: this;
 });
 
 // Destroy the button sets selected
