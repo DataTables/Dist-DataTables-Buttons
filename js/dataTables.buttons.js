@@ -1437,7 +1437,7 @@ $.extend(Buttons.prototype, {
 			$(window).off('resize.resize.dtb-collection');
 			$('body').off('.dtb-collection');
 			dt.off('buttons-action.b-internal');
-			dt.off('destroy');
+			dt.off('destroy.dtb-popover');
 
 			$('body').trigger('buttons-popover-hide.dt');
 		};
@@ -1703,7 +1703,7 @@ $.extend(Buttons.prototype, {
 
 		$(display).trigger('buttons-popover.dt');
 
-		dt.on('destroy', close);
+		dt.on('destroy.dtb-popover', close);
 
 		setTimeout(function () {
 			closed = false;
