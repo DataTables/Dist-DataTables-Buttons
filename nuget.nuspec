@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <version>3.2.6</version>
+        <version>4.0.0-beta.1</version>
         <id>datatables.net-buttons</id>
         <description>This is Buttons for DataTables</description>
-        <repository type="git" url="https://github.com/DataTables/Dist-DataTables-Buttons.git"/>
+        <repository type="git" url="https://github.com/DataTables/Buttons"/>
         <authors>SpryMedia Ltd</authors>
         <projectUrl>http://datatables.net</projectUrl>
         <license type="expression">MIT</license>
-        <tags>Buttons  Column Visibility  csv  excel  pdf  print  Datatables jQuery table</tags>
+        <tags>Buttons  Column Visibility  csv  excel  pdf  print  Datatables table</tags>
         <dependencies>
-            <dependency id="datatables.net" version="2.3.2"/>
+            <dependency id="datatables.net" version="3.0.0-0"/>
         </dependencies>
         <contentFiles>
             <files include="**/*" buildAction="Content"/>
         </contentFiles>
+        <readme>Readme.md</readme>
     </metadata>
     <files>
+        <file src="Readme.md" target=""/>
         <file src="js/buttons.colVis.js" target="content\Scripts"/>
         <file src="js/buttons.colVis.js" target="contentFiles\any\any\wwwroot\js"/>
         <file src="js/buttons.colVis.min.js" target="content\Scripts"/>
@@ -51,4 +53,3 @@
         <file src="js/dataTables.buttons.mjs" target="contentFiles\any\any\wwwroot\js"/>
     </files>
 </package>
-
