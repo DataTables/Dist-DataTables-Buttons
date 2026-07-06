@@ -691,8 +691,7 @@ dtButtons.copyHtml5 = {
         if (config.customize) {
             output = config.customize(output, config, dt);
         }
-        var textarea = Dom
-            .c('textarea')
+        var textarea = Dom.c('textarea')
             .prop('readonly', true)
             .val(output)
             .appendTo(hiddenDiv);
@@ -720,8 +719,7 @@ dtButtons.copyHtml5 = {
             }
         }
         // Otherwise we show the text box and instruct the user to use it
-        var message = Dom
-            .c('span')
+        var message = Dom.c('span')
             .html(dt.i18n('buttons.copyKeys', 'Press <i>ctrl</i> or <i>\u2318</i> + <i>C</i> to copy the table data<br>to your system clipboard.<br><br>' +
             'To cancel, click this message or press escape.'))
             .append(hiddenDiv);
@@ -772,7 +770,7 @@ dtButtons.csvHtml5 = {
     bom: false,
     className: 'buttons-csv buttons-html5',
     available: function () {
-        return (window.FileReader !== undefined && window.Blob) ? true : false;
+        return window.FileReader !== undefined && window.Blob ? true : false;
     },
     text: function (dt) {
         return dt.i18n('buttons.csv', 'CSV');
@@ -821,9 +819,11 @@ dtButtons.csvHtml5 = {
 dtButtons.excelHtml5 = {
     className: 'buttons-excel buttons-html5',
     available: function () {
-        return (window.FileReader !== undefined &&
+        return window.FileReader !== undefined &&
             DataTable.Buttons.jszip() !== undefined &&
-            _serialiser) ? true : false;
+            _serialiser
+            ? true
+            : false;
     },
     text: function (dt) {
         return dt.i18n('buttons.excel', 'Excel');
@@ -854,6 +854,7 @@ dtButtons.excelHtml5 = {
             '[Content_Types].xml': getXml('[Content_Types].xml')
         };
         var data = dt.buttons.exportData(config.exportOptions);
+        var columnTypes = dt.columns(config.exportOptions.columns).types();
         var currentRow, rowNode;
         var addRow = function (row) {
             currentRow = rowPos + 1;
@@ -900,10 +901,11 @@ dtButtons.excelHtml5 = {
                     }
                 }
                 if (!cell) {
-                    if (typeof row[i] === 'number' ||
-                        (row[i].match &&
-                            row[i].match(/^-?\d+(\.\d+)?([eE]\-?\d+)?$/) && // Includes exponential format
-                            !row[i].match(/^0\d+/))) {
+                    if (columnTypes[i].includes('num') &&
+                        (typeof row[i] === 'number' ||
+                            (row[i].match &&
+                                row[i].match(/^-?\d+(\.\d+)?([eE]\-?\d+)?$/) && // Includes exponential format
+                                !row[i].match(/^0\d+/)))) {
                         // Detect numbers - don't match numbers with leading zeros
                         // or a negative anywhere but the start
                         cell = _createNode(rels, 'c', {
