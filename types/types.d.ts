@@ -391,6 +391,12 @@ declare module 'datatables.net' {
          */
         add(index: number | string, config: string | Buttons): Api<any>;
         /**
+         * Rebuild the buttons in the collection for the selected host button.
+         *
+         * @param buttons New buttons to use
+         */
+        collectionRebuild(buttons: ButtonConfig): any;
+        /**
          * Disable the selected buttons.
          *
          * @returns DataTables API instance with the selected button in the
