@@ -1773,6 +1773,22 @@ Object.assign(DataTable.ext.buttons, {
 * source  : http://purl.eligrey.com/github/FileSaver.js
 */
 var _global = window;
+function isUtf8TextOrXml(typeString) {
+    if (!typeString) {
+        return false;
+    }
+    const [mediaType, ...params] = typeString.toLowerCase().split(';').map(s => s.trim());
+    const isTargetType = mediaType.startsWith('text/') ||
+        mediaType === 'application/xml' ||
+        (mediaType.includes('/') && mediaType.endsWith('+xml'));
+    if (!isTargetType) {
+        return false;
+    }
+    return params.some(param => {
+        const [key, val] = param.split('=').map(s => s.trim());
+        return key === 'charset' && val === 'utf-8';
+    });
+}
 function bom(blob, opts) {
     if (typeof opts === 'undefined')
         opts = { autoBom: false };
@@ -1782,7 +1798,7 @@ function bom(blob, opts) {
     }
     // prepend BOM for UTF-8 XML and text/* types (including HTML)
     // note: your browser will automatically convert UTF-16 U+FEFF to EF BB BF
-    if (opts.autoBom && /^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
+    if (opts.autoBom && isUtf8TextOrXml(blob.type)) {
         return new Blob([String.fromCharCode(0xFEFF), blob], { type: blob.type });
     }
     return blob;
@@ -3593,7 +3609,7 @@ Buttons.stripHtmlComments = function (input) {
     var previous;
     do {
         previous = input;
-        input = input.replace(/(<!--.*?--!?>)|(<!--[\S\s]+?--!?>)|(<!--[\S\s]*?$)/g, '');
+        input = input.replace(/<!--[\s\S]*?(?:--!?>|$)/g, '');
     } while (input !== previous);
     return input;
 };
