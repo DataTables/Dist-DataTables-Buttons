@@ -3902,7 +3902,6 @@ DataTable.Api.register('buttons.info()', function (title, message, time) {
         .classAdd('dt-button-info')
         .html(title)
         .append(Dom.c('div')[typeof message === 'string' ? 'html' : 'append'](message))
-        .css('display', 'none')
         .appendTo('body'));
     if (time !== undefined && time !== 0) {
         _infoTimer = setTimeout(function () {
