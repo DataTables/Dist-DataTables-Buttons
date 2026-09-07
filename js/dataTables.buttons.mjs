@@ -2405,7 +2405,7 @@ class Buttons {
      */
     destroy() {
         // Key event listener
-        Dom.s('body').off('keyup.' + this.s.namespace);
+        Dom.s('body').off('keydown.' + this.s.namespace);
         // Individual button destroy (so they can remove their own events if
         // needed). Take a copy as the array is modified by `remove`
         var buttons = this.s.buttons.slice();
@@ -2638,14 +2638,17 @@ class Buttons {
                 that.destroy();
             }
         });
-        // Global key event binding to listen for button keys
-        Dom.c('body').on('keyup.' + this.s.namespace, function (e) {
+        // Global key event binding to listen for button keys. Keydown to allow
+        // prevent default, which is needed in Firefox to stop the quick find
+        // feature.
+        Dom.s(document).on('keydown.' + this.s.namespace, function (e) {
             if (!document.activeElement ||
                 document.activeElement === document.body) {
                 // Use a string of characters for fast lookup of if we need to
                 // handle this
                 var character = String.fromCharCode(e.keyCode).toLowerCase();
                 if (that.s.listenKeys.toLowerCase().indexOf(character) !== -1) {
+                    e.preventDefault();
                     that._keypress(character, e);
                 }
             }
