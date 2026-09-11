@@ -1,4 +1,4 @@
-/*! Buttons 4.0.2 for DataTables
+/*! Buttons 4.0.3 for DataTables
  * Copyright (c) SpryMedia Ltd - datatables.net/license
  */
 
@@ -3697,7 +3697,7 @@ Buttons.defaults = {
 /**
  * Version information
  */
-Buttons.version = '4.0.2';
+Buttons.version = '4.0.3';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables API
