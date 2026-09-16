@@ -1536,7 +1536,7 @@ const pdfHtml5 = {
 /*
  * Print button for Buttons and DataTables.
  */
-var _link = document.createElement('a');
+var _link;
 /**
  * Convert a URL from a relative to an absolute address so it will work
  * correctly in the popup window which has no base URL.
@@ -1546,6 +1546,9 @@ var _link = document.createElement('a');
 var _relToAbs = function (href) {
     // Assign to a link on the original page so the browser will do all the
     // hard work of figuring out where the file actually is
+    if (!_link) {
+        _link = Dom.c('a')[0];
+    }
     _link.href = href;
     var linkHost = _link.host;
     // IE doesn't have a trailing slash on the host
@@ -1772,7 +1775,7 @@ Object.assign(DataTable.ext.buttons, {
 * License : https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md (MIT)
 * source  : http://purl.eligrey.com/github/FileSaver.js
 */
-var _global = window;
+var _global = DataTable.use('win');
 function isUtf8TextOrXml(typeString) {
     if (!typeString) {
         return false;
@@ -1939,7 +1942,7 @@ if (!DataTable.versionCheck('3')) {
 }
 // Expose file saver on the DataTables API.
 DataTable.fileSave = saveAs;
-const _exportTextarea = document.createElement('textarea');
+var _exportTextarea;
 // Used for namespacing events added to the document by each instance, so they
 // can be removed on destroy
 var _instCounter = 0;
@@ -3581,6 +3584,9 @@ Buttons.stripData = function (input, config) {
             str = _entityDecoder(str);
         }
         else {
+            if (!_exportTextarea) {
+                _exportTextarea = Dom.c('textarea')[0];
+            }
             _exportTextarea.innerHTML = str;
             str = _exportTextarea.value;
         }
@@ -3945,7 +3951,7 @@ DataTable.Buttons = Buttons;
 // they will have been if the `B` option was used in `dom`, otherwise we should
 // create the buttons instance here so they can be inserted into the document
 // using the API.
-Dom.s(document).on('init.dt plugin-init.dt', function (e, settings) {
+Dom.on('init.dt plugin-init.dt', function (e, settings) {
     if (e.namespace !== 'dt') {
         return;
     }
