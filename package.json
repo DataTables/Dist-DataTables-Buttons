@@ -1,14 +1,13 @@
 {
     "name": "datatables.net-buttons",
     "description": "Buttons for DataTables",
-    "main": "js/dataTables.buttons.js",
-    "module": "js/dataTables.buttons.mjs",
+    "main": "./js/dataTables.buttons.js",
+    "module": "./js/dataTables.buttons.mjs",
     "types": "./types/types.d.ts",
     "version": "4.0.3",
     "files": [
-        "js/**/*.js",
-        "js/**/*.mjs",
-        "types/**/*.d.ts"
+        "js",
+        "types"
     ],
     "keywords": [
         "Buttons",
@@ -35,5 +34,16 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/DataTables/Buttons.git"
-    }
+    },
+    "exports": {
+        ".": {
+            "types": "./types/types.d.ts",
+            "import": "./js/dataTables.buttons.mjs",
+            "default": "./js/dataTables.buttons.mjs",
+            "require": "./js/dataTables.buttons.js"
+        },
+        "./js/*": "./js/*",
+        "./package.json": "./package.json"
+    },
+    "sideEffects": true
 }
