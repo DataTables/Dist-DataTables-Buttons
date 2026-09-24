@@ -39,8 +39,8 @@
         ".": {
             "types": "./types/types.d.ts",
             "import": "./js/dataTables.buttons.mjs",
-            "default": "./js/dataTables.buttons.mjs",
-            "require": "./js/dataTables.buttons.js"
+            "require": "./js/dataTables.buttons.js",
+            "default": "./js/dataTables.buttons.mjs"
         },
         "./js/*": "./js/*",
         "./package.json": "./package.json"
