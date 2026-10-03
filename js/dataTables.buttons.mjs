@@ -954,7 +954,8 @@ const excelHtml5 = {
                     }
                 }
                 if (!cell) {
-                    if (columnTypes[i].includes('num') &&
+                    if (columnTypes[i] &&
+                        columnTypes[i].includes('num') &&
                         (typeof row[i] === 'number' ||
                             (row[i].match &&
                                 row[i].match(/^-?\d+(\.\d+)?([eE]\-?\d+)?$/) && // Includes exponential format
