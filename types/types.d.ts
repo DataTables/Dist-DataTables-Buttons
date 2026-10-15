@@ -485,8 +485,7 @@ declare module 'datatables.net' {
          * Obtain data from a DataTable that is suitable for exporting by saving
          * into a file or copying to clipboard.
          *
-         * @returns An object with 3 properties, one each for the data in the
-         * header, body and footer.
+         * @returns An object containing the data and metadata used for export.
          */
         exportData(options?: ButtonsApiExportDataParameter): ButtonsApiExportDataReturn;
     }
@@ -751,6 +750,7 @@ interface ButtonsApiExportDataReturn {
     footer: string[];
     footerStructure: HeaderStructure[][];
     body: string[][];
+    columnTypes: string[];
 }
 interface DefaultsButtonsDom {
     button: ButtonDom;
@@ -1014,7 +1014,7 @@ interface ButtonExportOptions {
 }
 type ButtonHeaderFormatter = (str: string, idx: number, el: HTMLElement) => string;
 type ButtonBodyFormatter = (str: string, row: number, column: number, el: HTMLElement) => string;
-type FunctionButtonCustomizeData = (content: any) => void;
+type FunctionButtonCustomizeData = (content: ButtonsApiExportDataReturn) => void;
 interface DefaultsButtons {
     name: string;
     tabIndex: number;

@@ -947,7 +947,7 @@ const excelHtml5 = {
             '[Content_Types].xml': getXml('[Content_Types].xml')
         };
         var data = dt.buttons.exportData(config.exportOptions);
-        var columnTypes = dt.columns(config.exportOptions.columns).types();
+        var columnTypes = data.columnTypes;
         var currentRow, rowNode;
         var addRow = function (row) {
             currentRow = rowPos + 1;
@@ -4144,7 +4144,8 @@ var _exportData = function (dt, inOpts) {
         headerStructure: _headerFormatter(config.format.header, dt.table().header.structure(config.columns)),
         footer: footer,
         footerStructure: _headerFormatter(config.format.footer, dt.table().footer.structure(config.columns)),
-        body: body
+        body: body,
+        columnTypes: dt.columns(config.columns).types().toArray()
     };
     if (config.customizeData) {
         config.customizeData(data);
