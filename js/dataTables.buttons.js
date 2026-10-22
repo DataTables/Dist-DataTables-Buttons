@@ -2224,7 +2224,7 @@ class Buttons {
                 if (top > half) {
                     top = half;
                 }
-                display.css('marginTop', top + 'px');
+                display.css('marginTop', -top + 'px');
             };
             place();
             Dom.w.on('resize.dtb-collection', function () {
