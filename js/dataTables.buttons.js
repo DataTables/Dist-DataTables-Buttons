@@ -1,4 +1,4 @@
-/*! Buttons 4.1.2 for DataTables
+/*! Buttons 4.1.3 for DataTables
  * Copyright (c) SpryMedia Ltd - datatables.net/license
  */
 
@@ -10,13 +10,6 @@
 		});
 	}
 	else if (typeof exports === 'object') {
-		// CommonJS
-		var cjsRequires = function (root) {
-			if (! root.DataTable) {
-				require('datatables.net')(root);
-			}
-		};
-
 		if (typeof window === 'undefined') {
 			module.exports = function (root) {
 				if (! root) {
@@ -24,14 +17,20 @@
 					// root. This will give an error otherwise
 					root = window;
 				}
+				
+				var DataTable = root.DataTable ?
+					root.DataTable :
+					require('datatables.net')(root);
 
-				cjsRequires(root);
-				return factory(root, root.document, root.DataTable);
+				return factory(root, root.document, DataTable);
 			};
 		}
 		else {
-			cjsRequires(window);
-			module.exports = factory(window, window.document, window.DataTable);
+			var DataTable = window.DataTable ?
+				window.DataTable :
+				require('datatables.net');
+
+			module.exports = factory(window, window.document, DataTable);
 		}
 	}
 	else {
@@ -3704,7 +3703,7 @@ Buttons.defaults = {
 /**
  * Version information
  */
-Buttons.version = '4.1.2';
+Buttons.version = '4.1.3';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables API
