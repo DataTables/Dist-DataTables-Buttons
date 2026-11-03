@@ -2246,7 +2246,7 @@ class Buttons {
                     // tab
                     return;
                 }
-                if (elements.get().includes(active)) {
+                if (!elements.get().includes(active)) {
                     // If current focus is not inside the popover
                     first.focus();
                     e.preventDefault();
