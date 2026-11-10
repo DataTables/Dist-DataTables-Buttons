@@ -3554,7 +3554,11 @@ Buttons.stripData = function (input, config) {
     }
     // Prevent Excel from running a formula
     if (!config || config.escapeExcelFormula) {
-        if (str.match(/^[=@\t\r]/)) {
+        // For data with certain leading characters, we need to explicity
+        // define the output as a string, which is done with a leading quote
+        // mark. This should not be done on data which is just purely
+        // numeric though.
+        if (!str.match(/^[+-]?\d+\.?\d*$/) && str.match(/^[=+\-@\t\r]/)) {
             str = "'" + str;
         }
     }
