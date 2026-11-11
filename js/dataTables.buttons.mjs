@@ -3558,7 +3558,7 @@ Buttons.stripData = function (input, config) {
         // define the output as a string, which is done with a leading quote
         // mark. This should not be done on data which is just purely
         // numeric though.
-        if (!str.match(/^[+-]?\d+\.?\d*$/) && str.match(/^[=+\-@\t\r]/)) {
+        if (!Buttons.isNumber(str) && str.match(/^[=+\-@\t\r]/)) {
             str = "'" + str;
         }
     }
@@ -3572,6 +3572,15 @@ Buttons.stripData = function (input, config) {
  */
 Buttons.entityDecoder = function (fn) {
     _entityDecoder = fn;
+};
+/**
+ * Check if a value contains a number
+ *
+ * @param val Value to check
+ * @returns `true` if it is
+ */
+Buttons.isNumber = function (val) {
+    return !isNaN(parseFloat(val)) && !isNaN(val - 0);
 };
 /**
  * Common function for stripping HTML comments

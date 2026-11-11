@@ -53,6 +53,13 @@ declare class Buttons {
      */
     static entityDecoder: (fn: EntityDecoder) => void;
     /**
+     * Check if a value contains a number
+     *
+     * @param val Value to check
+     * @returns `true` if it is
+     */
+    static isNumber: (val: any) => boolean;
+    /**
      * Set the pdfMake library for use with the pdfHtml5 button type
      *
      * @param _
