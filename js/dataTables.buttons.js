@@ -2130,7 +2130,9 @@ class Buttons {
         var tableContainer = Dom.s(hostButton.table().container());
         var position = display.css('position');
         if (options.span === 'container' || options.align === 'dt-container') {
-            hostNode = hostNode.parent();
+            if (hostNode.get(0) !== document.body) {
+                hostNode = hostNode.parent();
+            }
             display.css('width', tableContainer.width() + 'px');
         }
         // Align the popover relative to the DataTables container
